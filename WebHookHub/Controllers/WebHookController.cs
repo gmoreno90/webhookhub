@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebHookHub.Services;
@@ -30,13 +31,12 @@ namespace WebHookHub.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("PostData/{EventCode}/{ClientCode}")]
-        public async Task<bool> PostData(string EventCode, string ClientCode)
+        public async Task<bool> PostData([FromBody]object Data, string EventCode, string ClientCode)
         {
             try
             {
-                Stream req = Request.Body;
-                req.Seek(0, System.IO.SeekOrigin.Begin);
-                string strRQ = new StreamReader(req).ReadToEnd();
+
+                string strRQ = await ReadRequestBody(Request);
 
                 return await _service.PostData(new Models.PostDataContent()
                 {
@@ -52,6 +52,17 @@ namespace WebHookHub.Controllers
                 return false;
             }
 
+        }
+        private async Task<string> ReadRequestBody(Microsoft.AspNetCore.Http.HttpRequest request)
+        {
+            //request.EnableRewind();
+            request.EnableBuffering();
+            var buffer = new byte[Convert.ToInt32(request.ContentLength)];
+            await request.Body.ReadAsync(buffer, 0, buffer.Length);
+            var bodyAsText = System.Text.Encoding.UTF8.GetString(buffer);
+            request.Body.Seek(0, SeekOrigin.Begin);
+
+            return bodyAsText;
         }
     }
 }

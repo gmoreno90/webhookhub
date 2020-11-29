@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.States;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,9 @@ namespace WebHookHub.Services
                 {
                     foreach (var item in webhooks)
                     {
-                        var jobId = BackgroundJob.Enqueue(() => SendData(item.PostUrl, item.UserName, item.PostUrl, postDataContent.PostData, postDataContent.ContentType));
+                        EnqueuedState queue = new EnqueuedState(postDataContent.ClientCode.ToLower()); 
+                        //var jobId = BackgroundJob.Enqueue(() => SendData(item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType));
+                        var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType), queue);
                         listJobIds.Add(jobId);
                         _logger.LogInformation(postDataContent.ToString());
                     }
@@ -63,7 +66,7 @@ namespace WebHookHub.Services
         /// <param name="passWord"></param>
         /// <param name="dataToPost"></param>
         /// <returns></returns>
-        private void SendData(string urlToPost, string userName, string passWord, string dataToPost, string contentType)
+        public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType)
         {
             using (WebClient wc = new WebClient())
             {

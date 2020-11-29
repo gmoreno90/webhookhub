@@ -48,11 +48,13 @@ namespace WebHookHub
             UseRecommendedIsolationLevel = true,
             DisableGlobalLocks = true
         }));
-
+            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 2, DelaysInSeconds = new int[] { 10, 20 }, OnAttemptsExceeded = AttemptsExceededAction.Fail });
+            GlobalJobFilters.Filters.Add(new Filters.PreserveOriginalQueueAttribute());
             services.AddTransient<Services.ApiLogService>();
+            services.AddSingleton<Services.INotificationService, Services.NotificationService>();
 
             // Add the processing server as IHostedService
-            services.AddHangfireServer();
+            //services.AddHangfireServer();
 
             services.AddControllers()
                 .AddJsonOptions(x =>
@@ -117,7 +119,12 @@ namespace WebHookHub
             app.UseAuthorization();
             app.UseMiddleware<Middleware.ApiLoggingMiddleware>();
             app.UseHangfireDashboard("/HangFireDashboard");
+            var options = new BackgroundJobServerOptions
+            {
+                Queues = GetQueuesHangFire(app).ToArray()
+            };
 
+            app.UseHangfireServer(options);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -132,6 +139,17 @@ namespace WebHookHub
             using var context = serviceScope.ServiceProvider.GetService<Models.DB.WebHookHubContext>();
 
             context.Database.Migrate();
+        }
+        private List<string> GetQueuesHangFire(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices
+            .GetRequiredService<IServiceScopeFactory>()
+            .CreateScope();
+
+            using var context = serviceScope.ServiceProvider.GetService<Models.DB.WebHookHubContext>();
+            var res = context.Clients.Select(x => x.Code).ToList();
+            res.Add("default");
+            return res;
         }
     }
 }
