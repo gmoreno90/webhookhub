@@ -11,11 +11,11 @@ namespace WebHookHub.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientEventsController : ControllerBase
+    public class WebHooksController : ControllerBase
     {
         private readonly WebHookHubContext _context;
 
-        public ClientEventsController(WebHookHubContext context)
+        public WebHooksController(WebHookHubContext context)
         {
             _context = context;
         }

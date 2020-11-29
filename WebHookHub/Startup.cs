@@ -48,8 +48,12 @@ namespace WebHookHub
             UseRecommendedIsolationLevel = true,
             DisableGlobalLocks = true
         }));
-            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 2, DelaysInSeconds = new int[] { 10, 20 }, OnAttemptsExceeded = AttemptsExceededAction.Fail });
+            //Retry Intervals
+            var TimeIntervals = Configuration.GetSection("HangFireRetryIntervalInSeconds").Get<int[]>();
+            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = TimeIntervals.Length, DelaysInSeconds = TimeIntervals, OnAttemptsExceeded = AttemptsExceededAction.Fail });
+            //Presrve Queue
             GlobalJobFilters.Filters.Add(new Filters.PreserveOriginalQueueAttribute());
+
             services.AddTransient<Services.ApiLogService>();
             services.AddSingleton<Services.INotificationService, Services.NotificationService>();
 
