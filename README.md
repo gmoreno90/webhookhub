@@ -51,7 +51,7 @@ https://docs.hangfire.io/en/latest/deployment-to-production/making-aspnet-app-al
 ### Tech
 
 
-* [NET CORE 3.0 API] - Build the logic and the APIs
+* [.NET 5.0] - Build the business and the APIs
 * [HangFire] - For Manage Queues and Background Proccess.
 
 
