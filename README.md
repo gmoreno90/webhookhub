@@ -54,7 +54,7 @@ DockerFile with the project
 MSSQLServer Express For the Database
 
 ```cmd
-docker-compose up
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
 ```
 
 
