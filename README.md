@@ -4,9 +4,9 @@ The proposal for this project is that want to have a Web Hook Hub to manage all 
 [![Build Status](https://travis-ci.com/gmoreno90/webhookhub.svg?branch=develop&status=passed)](https://travis-ci.com/github/gmoreno90/webhookhub)
 
 ### Main Features!
-- Multiple Clientes
+- Multiple Clients
 - Multiple Events
-- Multiple Configurations
+- Multiple Configurations (Enpoints)
 - Retry Policies
 - Background Jobs
 - Multi-Server Manage Jobs
@@ -48,11 +48,21 @@ In order to configure this website allways up, please follow the next documentat
 https://docs.hangfire.io/en/latest/deployment-to-production/making-aspnet-app-always-running.html
 
 
+### Docker
+
+DockerFile with the project
+MSSQLServer Express For the Database
+
+```cmd
+docker-compose up
+```
+
+
 ### Tech
 
 
 * [.NET 5.0] - Build the business and the APIs
-* [HangFire] - For Manage Queues and Background Proccess.
+* [HangFire] - For Manage Queues and Background Process.
 
 
 License
