@@ -9,16 +9,23 @@ using WebHookHub.Models.DB;
 
 namespace WebHookHub.Controllers
 {
+    /// <summary>
+    /// Manage WebHooks COnfigurations
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class WebHooksController : ControllerBase
+    public class WebHookConfigsController : ControllerBase
     {
         private readonly WebHookHubContext _context;
-
-        public WebHooksController(WebHookHubContext context)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        public WebHookConfigsController(WebHookHubContext context)
         {
             _context = context;
         }
+
 
         // GET: api/ClientEvents
         [HttpGet]

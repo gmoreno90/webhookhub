@@ -17,6 +17,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
 using System.IO;
+using Hangfire.Dashboard.BasicAuthorization;
+using Microsoft.AspNetCore.Http;
 
 namespace WebHookHub
 {
@@ -37,19 +39,19 @@ namespace WebHookHub
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddHangfire(configuration => configuration
-        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-        .UseSimpleAssemblyNameTypeSerializer()
-        .UseRecommendedSerializerSettings()
-        .UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
-        {
-            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-            QueuePollInterval = TimeSpan.Zero,
-            UseRecommendedIsolationLevel = true,
-            DisableGlobalLocks = true
-        }));
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+                    {
+                        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                        QueuePollInterval = TimeSpan.Zero,
+                        UseRecommendedIsolationLevel = true,
+                        DisableGlobalLocks = true
+                    }));
             //Retry Intervals
-            var TimeIntervals = Configuration.GetSection("HangFireRetryIntervalInSeconds").Get<int[]>();
+            var TimeIntervals = Configuration.GetSection("HangFireConfig:HangFireRetryIntervalInSeconds").Get<int[]>();
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = TimeIntervals.Length, DelaysInSeconds = TimeIntervals, OnAttemptsExceeded = AttemptsExceededAction.Fail });
             //Presrve Queue
             GlobalJobFilters.Filters.Add(new Filters.PreserveOriginalQueueAttribute());
@@ -102,6 +104,11 @@ namespace WebHookHub
             {
                 app.UseDeveloperExceptionPage();
             }
+            //app.Use((context, next) =>
+            //{
+            //    context.Request.EnableBuffering();
+            //    return next();
+            //});
             UpdateDatabase(app);
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
@@ -122,7 +129,26 @@ namespace WebHookHub
 
             app.UseAuthorization();
             app.UseMiddleware<Middleware.ApiLoggingMiddleware>();
-            app.UseHangfireDashboard("/HangFireDashboard");
+            var dashboardOptions = new DashboardOptions
+            {
+                DashboardTitle = "WebHook Hub - HangFire",
+                Authorization = new[] { new BasicAuthAuthorizationFilter(new BasicAuthAuthorizationFilterOptions
+                {
+                    RequireSsl = false,
+                    SslRedirect = false,
+                    LoginCaseSensitive = true,
+                    Users = new []
+                    {
+                        new BasicAuthAuthorizationUser
+                        {
+                            Login = Configuration.GetValue<string>("HangFireConfig:DashboardUserName"),
+                            PasswordClear =  Configuration.GetValue<string>("HangFireConfig:DashboardPassword")
+                        }
+                    }
+
+                }) }
+            };
+            app.UseHangfireDashboard(Configuration.GetValue<string>("HangFireConfig:DashboardPath"), dashboardOptions);
             var options = new BackgroundJobServerOptions
             {
                 Queues = GetQueuesHangFire(app).ToArray()

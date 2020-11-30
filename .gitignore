@@ -2,3 +2,5 @@
 /WebHookHub/obj
 /WebHookHub/bin
 /WebHookHub/appsettings.DevPolaris.json
+/WebHookHub/.config
+/WebHookHub/Properties/PublishProfiles

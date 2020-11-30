@@ -14,7 +14,16 @@ namespace WebHookHub.Services
     /// </summary>
     public interface IApiLogService
     {
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <param name="apiLogItem"></param>
+        /// <returns></returns>
         Task Log(ApiLogItem apiLogItem);
+        /// <summary>
+        /// Remove Old Elements of logs
+        /// </summary>
+        /// <returns></returns>
         Task<bool> AutoMaintenance();
 
     }
@@ -27,7 +36,11 @@ namespace WebHookHub.Services
         private readonly ILogger<ApiLogService> _logger;
         private IConfiguration _config { get; }
         private readonly Models.DB.WebHookHubContext _db;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="config"></param>
         public ApiLogService(ILogger<ApiLogService> logger, IConfiguration config)
         {
             _logger = logger;
@@ -36,7 +49,11 @@ namespace WebHookHub.Services
             contextOptionBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
             _db = new Models.DB.WebHookHubContext(contextOptionBuilder.Options, config);
         }
-
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <param name="apiLogItem"></param>
+        /// <returns></returns>
         public async Task Log(ApiLogItem apiLogItem)
         {
             try

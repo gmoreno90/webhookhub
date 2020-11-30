@@ -3,21 +3,33 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using WebHookHub.Models;
 using WebHookHub.Services;
 
 namespace WebHookHub.Controllers
 {
+    /// <summary>
+    /// WebHook POST DATA
+    /// </summary>
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class WebHookController : ControllerBase
     {
-        
+
         private readonly ILogger<WebHookController> _logger;
         private readonly INotificationService _service;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="service"></param>
         public WebHookController(ILogger<WebHookController> logger, INotificationService service)
         {
             _logger = logger;
@@ -27,15 +39,15 @@ namespace WebHookHub.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ClientCode"></param>
+        /// <param name="EventCode">Event Code String</param>
+        /// <param name="ClientCode">Cliente Code String</param>
         /// <returns></returns>
         [HttpPost]
         [Route("PostData/{EventCode}/{ClientCode}")]
-        public async Task<bool> PostData([FromBody]object Data, string EventCode, string ClientCode)
+        public async Task<bool> PostData(string EventCode, string ClientCode)
         {
             try
             {
-
                 string strRQ = await ReadRequestBody(Request);
 
                 return await _service.PostData(new Models.PostDataContent()
@@ -53,6 +65,11 @@ namespace WebHookHub.Controllers
             }
 
         }
+        /// <summary>
+        /// Helper to readRequest Body
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         private async Task<string> ReadRequestBody(Microsoft.AspNetCore.Http.HttpRequest request)
         {
             //request.EnableRewind();

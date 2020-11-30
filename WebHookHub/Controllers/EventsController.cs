@@ -9,6 +9,9 @@ using WebHookHub.Models.DB;
 
 namespace WebHookHub.Controllers
 {
+    /// <summary>
+    /// Manage Events
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class EventsController : ControllerBase
