@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
     webhookhub:
-        image: ${DOCKER_REGISTRY-}webhookhub
+        image: webhookhub
         build:
             context: .
             dockerfile: WebHookHub/Dockerfile
