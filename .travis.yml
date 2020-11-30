@@ -3,5 +3,5 @@ dist: xenial
 mono: none
 dotnet: 5.0
 script:
-  - dotnet restore
-  - dotnet build
+  - dotnet restore WebHookHub.sln
+  - dotnet build WebHookHub.sln
