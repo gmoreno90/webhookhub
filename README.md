@@ -36,9 +36,15 @@ Inject appsettings.json file
 }
 ```
 
+### Service Allways
+
+In order to configure this website allways up, please follow the next documentation
+
+https://docs.hangfire.io/en/latest/deployment-to-production/making-aspnet-app-always-running.html
+
+
 ### Tech
 
-Dillinger uses a number of open source projects to work properly:
 
 * [NET CORE 3.0 API] - Build the logic and the APIs
 * [HangFire] - For Manage Queues and Background Proccess.
