@@ -1,7 +1,7 @@
 # Web Hook HUB
 The proposal for this project is that want to have a Web Hook Hub to manage all the webhook notification of the same company
 
-[![Build Status](https://api.travis-ci.com/gmoreno90/webhookhub.svg?branch=develop)](https://travis-ci.com/github/gmoreno90/webhookhub)
+[![Build Status](https://travis-ci.com/gmoreno90/webhookhub.svg?branch=develop&status=passed)](https://travis-ci.com/github/gmoreno90/webhookhub)
 
 ### Main Features!
 - Multiple Clientes
