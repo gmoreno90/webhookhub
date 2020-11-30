@@ -7,9 +7,11 @@ services:
             context: .
             dockerfile: WebHookHub/Dockerfile
         depends_on:
-            - db
-    db:
+            - dbwebhookhub
+    dbwebhookhub:
         image: "mcr.microsoft.com/mssql/server:2017-latest"
         environment:
           - ACCEPT_EULA=Y
-          - SA_PASSWORD=eiLuJ2j123eiLuj4
+          - SA_PASSWORD=T3stUs3rPassW0rD2020
+        ports:
+          - "1433:1433"
