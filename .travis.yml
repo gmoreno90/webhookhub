@@ -1,0 +1,7 @@
+language: csharp
+dist: xenial
+mono: none
+dotnet: 5.0
+script:
+  - dotnet restore WebHookHub.sln
+  - dotnet build WebHookHub.sln
