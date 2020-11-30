@@ -5,12 +5,31 @@ using System.Threading.Tasks;
 
 namespace WebHookHub.Models
 {
+    /// <summary>
+    /// Post Data Content
+    /// </summary>
     public class PostDataContent
     {
+        /// <summary>
+        /// EventCode
+        /// </summary>
         public string EventCode { get; set; }
+        /// <summary>
+        /// ClientCode
+        /// </summary>
         public string ClientCode { get; set; }
+        /// <summary>
+        /// PostData
+        /// </summary>
         public string PostData { get; set; }
+        /// <summary>
+        /// ContentType
+        /// </summary>
         public string ContentType { get; set; }
+        /// <summary>
+        /// ToString
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string strReturn = "";

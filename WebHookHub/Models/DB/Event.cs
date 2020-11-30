@@ -6,13 +6,25 @@ using System.Threading.Tasks;
 
 namespace WebHookHub.Models.DB
 {
+    /// <summary>
+    /// Event
+    /// </summary>
     public class Event
     {
+        /// <summary>
+        /// ID
+        /// </summary>
         [Key]
         public int ID { get; set; }
+        /// <summary>
+        /// Code
+        /// </summary>
         [Required]
         [MaxLength(50),MinLength(2)]
         public string Code { get; set; }
+        /// <summary>
+        /// Description
+        /// </summary>
         [Required]
         [MaxLength(100), MinLength(2)]
         public string Description { get; set; }
