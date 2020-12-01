@@ -1,17 +1,19 @@
 version: '3.4'
 
 services:
-    webhookhub:
-        image: webhookhub
-        build:
-            context: .
-            dockerfile: WebHookHub/Dockerfile
-        depends_on:
-            - dbwebhookhub
     dbwebhookhub:
         image: "mcr.microsoft.com/mssql/server:2017-latest"
         environment:
           - ACCEPT_EULA=Y
           - SA_PASSWORD=T3stUs3rPassW0rD2020
         ports:
-          - "1433:1433"
+          - "1433"
+    webhookhub:
+        image: webhookhub
+        restart: on-failure
+        build:
+            context: .
+            dockerfile: WebHookHub/Dockerfile
+        depends_on:
+            - dbwebhookhub
+        #entrypoint: ["./wait-for-it.sh", "dbwebhookhub:1433", "--timeout=0", "--", "dotnet", "WebHookHub.dll"]
