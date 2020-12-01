@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Hangfire.States;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using WebHookHub.Models.Utils;
 
 namespace WebHookHub.Services
 {
@@ -29,15 +31,18 @@ namespace WebHookHub.Services
     {
         private readonly ILogger<NotificationService> _logger;
         private readonly Models.DB.WebHookHubContext _context;
+        private IConfiguration _config { get; }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="context"></param>
-        public NotificationService(ILogger<NotificationService> logger, Models.DB.WebHookHubContext context)
+        /// <param name="config"></param>
+        public NotificationService(ILogger<NotificationService> logger, Models.DB.WebHookHubContext context, IConfiguration config)
         {
             _logger = logger;
             _context = context;
+            _config = config;
         }
         /// <summary>
         /// 
@@ -48,6 +53,7 @@ namespace WebHookHub.Services
         {
             try
             {
+                int TimeOutInMsSecs = _config.GetValue<int>("DefaultTimeOutInMiliSeconds");
                 List<string> listJobIds = new List<string>();
                 var webhooks = _context.ClientEvents.Where(x => x.Event.Code == postDataContent.EventCode && x.Client.Code == postDataContent.ClientCode && x.Enable).ToList();
                 if (webhooks != null && webhooks.Count > 0)
@@ -56,7 +62,7 @@ namespace WebHookHub.Services
                     {
                         EnqueuedState queue = new EnqueuedState(postDataContent.ClientCode.ToLower()); 
                         //var jobId = BackgroundJob.Enqueue(() => SendData(item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType));
-                        var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType), queue);
+                        var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs), queue);
                         listJobIds.Add(jobId);
                         _logger.LogInformation(postDataContent.ToString());
                     }
@@ -84,10 +90,11 @@ namespace WebHookHub.Services
         /// <param name="passWord"></param>
         /// <param name="dataToPost"></param>
         /// <param name="contentType"></param>
+        /// <param name="timeOutInSeconds"></param>
         [DisplayName("SendData: [{1}:{0}]")]
-        public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType)
+        public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType, int TimeOutInMsSecs)
         {
-            using (WebClient wc = new WebClient())
+            using (CustomWebClient wc = new CustomWebClient(TimeOutInMsSecs))
             {
                 if(string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(passWord))
                 {
