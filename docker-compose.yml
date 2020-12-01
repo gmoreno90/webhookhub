@@ -16,4 +16,7 @@ services:
             dockerfile: WebHookHub/Dockerfile
         depends_on:
             - dbwebhookhub
+        ports:
+          - "880:80"
+          - "8443:443"
         #entrypoint: ["./wait-for-it.sh", "dbwebhookhub:1433", "--timeout=0", "--", "dotnet", "WebHookHub.dll"]
