@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Hangfire.States;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,7 +23,7 @@ namespace WebHookHub.Services
         /// </summary>
         /// <param name="postDataContent"></param>
         /// <returns></returns>
-        Task<bool> PostData(Models.PostDataContent postDataContent);
+        Task<string> PostData(Models.PostDataContent postDataContent);
     }
     /// <summary>
     /// NotificationService
@@ -49,36 +50,53 @@ namespace WebHookHub.Services
         /// </summary>
         /// <param name="postDataContent"></param>
         /// <returns></returns>
-        public async Task<bool> PostData(Models.PostDataContent postDataContent)
+        public async Task<string> PostData(Models.PostDataContent postDataContent)
         {
             try
             {
                 int TimeOutInMsSecs = _config.GetValue<int>("DefaultTimeOutInMiliSeconds");
                 List<string> listJobIds = new List<string>();
-                var webhooks = _context.ClientEvents.Where(x => x.Event.Code == postDataContent.EventCode && x.Client.Code == postDataContent.ClientCode && x.Enable).ToList();
-                if (webhooks != null && webhooks.Count > 0)
+                var eventClient = _context.ClientEvents.Include(x=>x.ClientEventWebhooks).FirstOrDefault(x => x.Event.Code == postDataContent.EventCode && x.Client.Code == postDataContent.ClientCode && x.Enable);
+                if (eventClient != null)
                 {
-                    foreach (var item in webhooks)
+                    try
                     {
-                        EnqueuedState queue = new EnqueuedState(postDataContent.ClientCode.ToLower()); 
-                        //var jobId = BackgroundJob.Enqueue(() => SendData(item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType));
-                        var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs), queue);
-                        listJobIds.Add(jobId);
-                        _logger.LogInformation(postDataContent.ToString());
+                        if (eventClient.ClientEventWebhooks != null && eventClient.ClientEventWebhooks.Count() > 0)
+                        {
+                            foreach (var item in eventClient.ClientEventWebhooks)
+                            {
+                                EnqueuedState queue = new EnqueuedState(postDataContent.ClientCode.ToLower());
+                                //var jobId = BackgroundJob.Enqueue(() => SendData(item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType));
+                                var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs, item.ExpectedContentResult), queue);
+                                listJobIds.Add(jobId);
+                                _logger.LogInformation(postDataContent.ToString());
+                            }
+                            return eventClient.ContentReponseOk;
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Not Webhooks Configured");
+                            return eventClient.ContentReponseError;
+                        }
                     }
+                    catch (Exception exevent)
+                    {
+                        throw new Exception(eventClient.ContentReponseError);
+                    }
+                    
+
                 }
-                else
-                {
-                    _logger.LogInformation("Not Webhooks Configured");
+                else {
+                    _logger.LogError("Not Webhooks Configured");
+                    return "[error][configuration not found]";
                 }
-                return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message + " : " + ex.StackTrace);
-                return false;
+                return "[error][" + ex.Message + " : " + ex.StackTrace +"]";
             }
-            
+
         }
         /// <summary>
         /// Send Data to WebHooks
@@ -90,19 +108,26 @@ namespace WebHookHub.Services
         /// <param name="passWord"></param>
         /// <param name="dataToPost"></param>
         /// <param name="contentType"></param>
-        /// <param name="timeOutInSeconds"></param>
+        /// <param name="TimeOutInMsSecs"></param>
         [DisplayName("SendData: [{1}:{0}]")]
-        public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType, int TimeOutInMsSecs)
+        public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType, int TimeOutInMsSecs, string expectedResult = "")
         {
             using (CustomWebClient wc = new CustomWebClient(TimeOutInMsSecs))
             {
-                if(string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(passWord))
+                if (string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(passWord))
                 {
                     NetworkCredential myCreds = new NetworkCredential(userName, passWord);
                     wc.Credentials = myCreds;
                 }
                 wc.Headers[HttpRequestHeader.ContentType] = contentType;
                 string HtmlResult = wc.UploadString(new Uri(urlToPost), dataToPost);
+
+                if (string.IsNullOrEmpty(expectedResult)) {
+                    if (HtmlResult != expectedResult) {
+                        throw new Exception("[Unexpected content result]");
+                    }
+                }
+
             }
         }
     }

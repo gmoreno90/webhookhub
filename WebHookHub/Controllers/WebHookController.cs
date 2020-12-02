@@ -44,7 +44,7 @@ namespace WebHookHub.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("PostData/{EventCode}/{ClientCode}")]
-        public async Task<bool> PostData(string EventCode, string ClientCode)
+        public async Task<string> PostData(string EventCode, string ClientCode)
         {
             try
             {
@@ -60,8 +60,8 @@ namespace WebHookHub.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
-                return false;
+                _logger.LogError(ex.Message + " : " + ex.StackTrace);
+                return ex.Message;
             }
 
         }
