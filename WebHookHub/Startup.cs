@@ -18,8 +18,9 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using Hangfire.Dashboard.BasicAuthorization;
-using Microsoft.AspNetCore.Http;
 using Hangfire.Dashboard;
+using Hangfire.Heartbeat.Server;
+using Hangfire.Heartbeat;
 
 namespace WebHookHub
 {
@@ -65,7 +66,8 @@ namespace WebHookHub
                         QueuePollInterval = TimeSpan.Zero,
                         UseRecommendedIsolationLevel = true,
                         DisableGlobalLocks = true
-                    }));
+                    })
+                    .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(1)));
             //Retry Intervals
             var TimeIntervals = Configuration.GetSection("HangFireConfig:HangFireRetryIntervalInSeconds").Get<int[]>();
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = TimeIntervals.Length, DelaysInSeconds = TimeIntervals, OnAttemptsExceeded = AttemptsExceededAction.Fail });
@@ -174,7 +176,7 @@ namespace WebHookHub
                 Queues = GetQueuesHangFire(app).ToArray()
             };
 
-            app.UseHangfireServer(options);
+            app.UseHangfireServer(options, additionalProcesses: new[] { new ProcessMonitor(checkInterval: TimeSpan.FromSeconds(1)) });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
