@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Hangfire.States;
+using Hangfire.Tags.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -110,6 +111,7 @@ namespace WebHookHub.Services
         /// <param name="contentType"></param>
         /// <param name="TimeOutInMsSecs"></param>
         [DisplayName("SendData: [{1}:{0}]")]
+        [Tag("SendData", "{0}", "{1}")]
         public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType, int TimeOutInMsSecs, string expectedResult = "")
         {
             using (CustomWebClient wc = new CustomWebClient(TimeOutInMsSecs))
