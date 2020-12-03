@@ -19,6 +19,7 @@ using Microsoft.OpenApi.Models;
 using System.IO;
 using Hangfire.Dashboard.BasicAuthorization;
 using Microsoft.AspNetCore.Http;
+using Hangfire.Dashboard;
 
 namespace WebHookHub
 {
@@ -166,6 +167,7 @@ namespace WebHookHub
 
                 }) }
             };
+            NavigationMenu.Items.Add(page => new MenuItem("API Documentation", "/index.html"));
             app.UseHangfireDashboard(Configuration.GetValue<string>("HangFireConfig:DashboardPath"), dashboardOptions);
             var options = new BackgroundJobServerOptions
             {
