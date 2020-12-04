@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,25 +17,29 @@ namespace WebHookHub.Controllers
     {
         private readonly ILogger<UtilsController> _logger;
         private IConfiguration _config { get; }
+        private IHostApplicationLifetime _appLifetime { get; set; }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="logger"></param>
-        public UtilsController(ILogger<UtilsController> logger, IConfiguration config)
+        /// <param name="config"></param>
+        /// <param name="appLifetime"></param>
+        public UtilsController(ILogger<UtilsController> logger, IConfiguration config, IHostApplicationLifetime appLifetime)
         {
+            _appLifetime = appLifetime;
             _logger = logger;
             _config = config;
         }
 
         /// <summary>
-        /// 
+        /// Version Information
         /// </summary>
-        /// <param name="rq"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("Version")]
         public async Task<ActionResult> Version()
         {
+            await Task.FromResult(true);
             var strVersion = _config.GetValue<string>("VersionNumber");
             string svgContent = "<svg width=\"89.5\" height=\"20.0\" xmlns=\"http://www.w3.org/2000/svg\">" +
                         "  <linearGradient id=\"a\" x2=\"0\" y2=\"100%\">" +
@@ -61,5 +67,20 @@ namespace WebHookHub.Controllers
                         "</svg>";
             return Content(svgContent, "image/svg+xml; charset=utf-8");
         }
+        /// <summary>
+        /// Restart Environment
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("RestartEnvironment")]
+        public async Task<ActionResult> RestartEnvironment()
+        {
+            _appLifetime.StopApplication();
+            //Environment.Exit(-1);
+            await Task.FromResult(true);
+            return  Content("Restarting server");
+        }
+
+        
     }
 }
