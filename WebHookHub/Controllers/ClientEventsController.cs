@@ -9,23 +9,16 @@ using WebHookHub.Models.DB;
 
 namespace WebHookHub.Controllers
 {
-    /// <summary>
-    /// Manage WebHooks COnfigurations
-    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class WebHookConfigsController : ControllerBase
+    public class ClientEventsController : ControllerBase
     {
         private readonly WebHookHubContext _context;
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        public WebHookConfigsController(WebHookHubContext context)
+
+        public ClientEventsController(WebHookHubContext context)
         {
             _context = context;
         }
-
 
         // GET: api/ClientEvents
         [HttpGet]
@@ -49,8 +42,7 @@ namespace WebHookHub.Controllers
         }
 
         // PUT: api/ClientEvents/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutClientEvent(int id, ClientEvent clientEvent)
         {
@@ -81,8 +73,7 @@ namespace WebHookHub.Controllers
         }
 
         // POST: api/ClientEvents
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<ClientEvent>> PostClientEvent(ClientEvent clientEvent)
         {
@@ -94,7 +85,7 @@ namespace WebHookHub.Controllers
 
         // DELETE: api/ClientEvents/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ClientEvent>> DeleteClientEvent(int id)
+        public async Task<IActionResult> DeleteClientEvent(int id)
         {
             var clientEvent = await _context.ClientEvents.FindAsync(id);
             if (clientEvent == null)
@@ -105,7 +96,7 @@ namespace WebHookHub.Controllers
             _context.ClientEvents.Remove(clientEvent);
             await _context.SaveChangesAsync();
 
-            return clientEvent;
+            return NoContent();
         }
 
         private bool ClientEventExists(int id)

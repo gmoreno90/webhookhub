@@ -22,39 +22,41 @@ namespace WebHookHub.Models.DB
         [Required]
         public int ClientId { get; set; }
         /// <summary>
+        /// Client Information
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore] 
+        public virtual Client Client { get; set; }
+        /// <summary>
         /// EventId
         /// </summary>
         [Required]
         public int EventId { get; set; }
         /// <summary>
-        /// Client
+        /// Event Information
         /// </summary>
-        public virtual Client Client { get; set; }
-        /// <summary>
-        /// Event
-        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore] 
         public virtual Event Event { get; set; }
+
         /// <summary>
-        /// PostUrl
+        /// Content Reponse OK
         /// </summary>
-        [Required]
-        [MaxLength(5000), MinLength(2)]
-        public string PostUrl { get; set; }
+        [MaxLength(5000)]
+        public string ContentReponseOk { get; set; }
         /// <summary>
-        /// UserName
+        /// Content Reponse OK
         /// </summary>
-        [MaxLength(500)]
-        public string UserName { get; set; }
-        /// <summary>
-        /// PassWord
-        /// </summary>
-        [MaxLength(500)]
-        public string PassWord { get; set; }
+        [MaxLength(5000)]
+        public string ContentReponseError { get; set; }
+
         /// <summary>
         /// Enable
         /// </summary>
-
         public bool Enable { get; set; }
+        /// <summary>
+        /// Client Event Webhooks
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore] 
+        public IEnumerable<ClientEventWebhooks> ClientEventWebhooks { get; set; }
 
     }
 }

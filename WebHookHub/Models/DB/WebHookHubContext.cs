@@ -34,6 +34,10 @@ namespace WebHookHub.Models.DB
         /// </summary>
         public DbSet<ClientEvent> ClientEvents { get; set; }
         /// <summary>
+        /// Client Event Webhooks
+        /// </summary>
+        public DbSet<ClientEventWebhooks> ClientEventWebhooks { get; set; }
+        /// <summary>
         /// ApiLogItems
         /// </summary>
         public DbSet<ApiLogItem> ApiLogItems { get; set; }

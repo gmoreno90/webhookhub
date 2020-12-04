@@ -6,3 +6,7 @@
 /WebHookHub/Properties/PublishProfiles
 /obj
 /bin
+/WebHookHub/Properties/serviceDependencies.webhookhub-pol-test - Web Deploy.json.user
+/WebHookHub/Properties/ServiceDependencies
+/WebHookHub/Properties/serviceDependencies.json
+/WebHookHub/Properties/serviceDependencies.webhookhub-pol-test - Web Deploy.json

@@ -20,7 +20,16 @@ namespace WebHookHub
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            try
+            {
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (Exception)
+            {
+                System.Threading.Thread.Sleep(2000);
+                Environment.Exit(-1);
+            }
+            
         }
         /// <summary>
         /// CreateHostBuilder

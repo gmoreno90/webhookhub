@@ -5,8 +5,13 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
+#COPY /WebHookHub/wait-for-it.sh wait-for-it.sh
+#RUN chmod +x /wait-for-mysql.sh
+
 COPY ["WebHookHub/WebHookHub.csproj", "WebHookHub/"]
 RUN dotnet restore "WebHookHub/WebHookHub.csproj"
 COPY . .
