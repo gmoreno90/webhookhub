@@ -16,7 +16,7 @@ namespace WebHookHub.Filters
             if (!(context.NewState is EnqueuedState enqueuedState)) return;
 
             // Checking if an original queue is already set
-            var originalQueue = JobHelper.FromJson<string>(
+            var originalQueue = SerializationHelper.Deserialize<string>(
                 context.Connection.GetJobParameter(
                     context.BackgroundJob.Id,
                     "OriginalQueue")
@@ -33,7 +33,7 @@ namespace WebHookHub.Filters
                 context.Connection.SetJobParameter(
                     context.BackgroundJob.Id,
                     "OriginalQueue",
-                    JobHelper.ToJson(enqueuedState.Queue));
+                    SerializationHelper.Serialize(enqueuedState.Queue));
             }
         }
 

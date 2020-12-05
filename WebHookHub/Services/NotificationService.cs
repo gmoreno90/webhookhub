@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WebHookHub.Models.Utils;
 
@@ -55,20 +56,31 @@ namespace WebHookHub.Services
         {
             try
             {
+                await Task.FromResult(true);
                 int TimeOutInMsSecs = _config.GetValue<int>("DefaultTimeOutInMiliSeconds");
                 List<string> listJobIds = new List<string>();
-                var eventClient = _context.ClientEvents.Include(x=>x.ClientEventWebhooks).FirstOrDefault(x => x.Event.Code == postDataContent.EventCode && x.Client.Code == postDataContent.ClientCode && x.Enable);
+                var eventClient = _context.ClientEvents
+                    .Include(x => x.ClientEventWebhooks)
+                    .Include(x => x.Event)
+                    .FirstOrDefault(x => x.Event.Code == postDataContent.EventCode && x.Client.Code == postDataContent.ClientCode && x.Enable);
                 if (eventClient != null)
                 {
+                    //Get IDS
+                    var ID = "";
+                    var IDExtra = "";
+                    if (!string.IsNullOrEmpty(eventClient.Event.RegexID))
+                        ID = SearchContentUtil.SearchContent(postDataContent.PostData, eventClient.Event.RegexID);
+                    if (!string.IsNullOrEmpty(eventClient.Event.RegexIDExtra))
+                        IDExtra = SearchContentUtil.SearchContent(postDataContent.PostData, eventClient.Event.RegexIDExtra);
+
                     try
                     {
-                        if (eventClient.ClientEventWebhooks != null && eventClient.ClientEventWebhooks.Count() > 0)
+                        if (eventClient.ClientEventWebhooks != null && eventClient.ClientEventWebhooks.Any())
                         {
                             foreach (var item in eventClient.ClientEventWebhooks)
                             {
                                 EnqueuedState queue = new EnqueuedState(postDataContent.ClientCode.ToLower());
-                                //var jobId = BackgroundJob.Enqueue(() => SendData(item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType));
-                                var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs, item.ExpectedContentResult), queue);
+                                var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, item.UserName, item.PassWord, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs, ID, IDExtra, item.ExpectedContentResult), queue);
                                 listJobIds.Add(jobId);
                                 _logger.LogInformation(postDataContent.ToString());
                             }
@@ -82,12 +94,14 @@ namespace WebHookHub.Services
                     }
                     catch (Exception exevent)
                     {
+                        _logger.LogError(exevent.Message);
                         throw new Exception(eventClient.ContentReponseError);
                     }
-                    
+
 
                 }
-                else {
+                else
+                {
                     _logger.LogError("Not Webhooks Configured");
                     return "[error][configuration not found]";
                 }
@@ -95,7 +109,7 @@ namespace WebHookHub.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message + " : " + ex.StackTrace);
-                return "[error][" + ex.Message + " : " + ex.StackTrace +"]";
+                return "[error][" + ex.Message + " : " + ex.StackTrace + "]";
             }
 
         }
@@ -110,9 +124,12 @@ namespace WebHookHub.Services
         /// <param name="dataToPost"></param>
         /// <param name="contentType"></param>
         /// <param name="TimeOutInMsSecs"></param>
-        [DisplayName("SendData: [{1}:{0}]")]
+        /// <param name="ID"></param>
+        /// <param name="IDExtra"></param>
+        /// <param name="expectedResult"></param>
+        [DisplayName("SendData: [{1}:{0}][{8} | {9}]")]
         [Tag("SendData", "{0}", "{1}")]
-        public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType, int TimeOutInMsSecs, string expectedResult = "")
+        public void SendData(string ClientCode, string EventCode, string urlToPost, string userName, string passWord, string dataToPost, string contentType, int TimeOutInMsSecs, string ID, string IDExtra, string expectedResult = "")
         {
             using (CustomWebClient wc = new CustomWebClient(TimeOutInMsSecs))
             {
@@ -122,10 +139,16 @@ namespace WebHookHub.Services
                     wc.Credentials = myCreds;
                 }
                 wc.Headers[HttpRequestHeader.ContentType] = contentType;
+                wc.Headers.Add("WebhookHub_ClientCode", ClientCode);
+                wc.Headers.Add("WebhookHub_EventCode", EventCode);
+                wc.Headers.Add("WebhookHub_ID", ID);
+                wc.Headers.Add("WebhookHub_IDExtra", IDExtra);
                 string HtmlResult = wc.UploadString(new Uri(urlToPost), dataToPost);
 
-                if (string.IsNullOrEmpty(expectedResult)) {
-                    if (HtmlResult != expectedResult) {
+                if (string.IsNullOrEmpty(expectedResult))
+                {
+                    if (HtmlResult != expectedResult)
+                    {
                         throw new Exception("[Unexpected content result]");
                     }
                 }

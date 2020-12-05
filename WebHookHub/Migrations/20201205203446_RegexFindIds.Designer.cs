@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebHookHub.Models.DB;
 
 namespace WebHookHub.Migrations
 {
     [DbContext(typeof(WebHookHubContext))]
-    partial class WebHookHubContextModelSnapshot : ModelSnapshot
+    [Migration("20201205203446_RegexFindIds")]
+    partial class RegexFindIds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

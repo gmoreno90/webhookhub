@@ -28,5 +28,13 @@ namespace WebHookHub.Models.DB
         [Required]
         [MaxLength(100), MinLength(2)]
         public string Description { get; set; }
+        /// <summary>
+        /// Regex to find ID
+        /// </summary>
+        public string RegexID { get; set; }
+        /// <summary>
+        /// Regex to find ID 2
+        /// </summary>
+        public string RegexIDExtra { get; set; }
     }
 }
