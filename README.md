@@ -46,6 +46,18 @@ Inject appsettings.json file
 }
 ```
 
+####Using Environment Variables 
+
+```
+ConnectionStrings__DefaultConnection 	server=XXXXXXXX;database=YYYYYYYYYY;uid=WWWWWWWWW;password=ZZZZZZZZ;
+HangFireConfig__DashboardUserName		XXXXXXX2
+HangFireConfig__DashboardPassword		YYYYYYY2
+HangFireConfig__DashboardPath			/HangFireDashboard2
+	
+```
+
+
+
 ### Service Allways
 
 In order to configure this website allways up, please follow the next documentation
