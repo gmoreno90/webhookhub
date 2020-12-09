@@ -94,6 +94,8 @@ namespace WebHookHub
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = TimeIntervals.Length, DelaysInSeconds = TimeIntervals, OnAttemptsExceeded = AttemptsExceededAction.Fail });
             //Presrve Queue
             GlobalJobFilters.Filters.Add(new Filters.PreserveOriginalQueueAttribute());
+            //Override MaxArgumentToRenderSize HangFire
+            Models.Utils.HangFireUtils.SetMaxArgumentToRenderSize(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"));
 
             services.AddTransient<Services.ApiLogService>();
             services.AddTransient<Services.INotificationService, Services.NotificationService>();
