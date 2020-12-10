@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using System;
 
 namespace WebHookHub
 {
@@ -29,7 +24,7 @@ namespace WebHookHub
                 System.Threading.Thread.Sleep(2000);
                 Environment.Exit(-1);
             }
-            
+
         }
         /// <summary>
         /// CreateHostBuilder

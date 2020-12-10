@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 
 namespace WebHookHub.Models.Utils
 {
@@ -27,7 +24,7 @@ namespace WebHookHub.Models.Utils
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        protected override WebRequest GetWebRequest(Uri uri)
+        protected override WebRequest GetWebRequest(System.Uri uri)
         {
             WebRequest w = base.GetWebRequest(uri);
             if (OverrideTimeOut != 0)

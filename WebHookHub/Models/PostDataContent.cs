@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace WebHookHub.Models
+﻿namespace WebHookHub.Models
 {
     /// <summary>
     /// Post Data Content

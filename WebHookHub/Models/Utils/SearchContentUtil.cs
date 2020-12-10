@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace WebHookHub.Models.Utils
 {
@@ -17,7 +14,8 @@ namespace WebHookHub.Models.Utils
         /// <param name="input"></param>
         /// <param name="pattern"></param>
         /// <returns></returns>
-        public static string SearchContent(string input, string pattern) {
+        public static string SearchContent(string input, string pattern)
+        {
             try
             {
                 var resMatch1 = Regex.Match(input, pattern, RegexOptions.CultureInvariant);
@@ -30,7 +28,7 @@ namespace WebHookHub.Models.Utils
                 var str = ex.Message;
                 return "";
             }
-            
+
         }
     }
 }

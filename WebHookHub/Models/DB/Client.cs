@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebHookHub.Models.DB
 {
@@ -20,7 +16,7 @@ namespace WebHookHub.Models.DB
         /// Code
         /// </summary>
         [Required]
-        [MaxLength(50),MinLength(2)]
+        [MaxLength(50), MinLength(2)]
         public string Code { get; set; }
         /// <summary>
         /// Description

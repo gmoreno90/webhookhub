@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace WebHookHub.Models.DB
 {
@@ -24,7 +21,7 @@ namespace WebHookHub.Models.DB
         /// <summary>
         /// Client Information
         /// </summary>
-        [System.Text.Json.Serialization.JsonIgnore] 
+        [System.Text.Json.Serialization.JsonIgnore]
         public virtual Client Client { get; set; }
         /// <summary>
         /// EventId
@@ -34,7 +31,7 @@ namespace WebHookHub.Models.DB
         /// <summary>
         /// Event Information
         /// </summary>
-        [System.Text.Json.Serialization.JsonIgnore] 
+        [System.Text.Json.Serialization.JsonIgnore]
         public virtual Event Event { get; set; }
 
         /// <summary>
@@ -55,7 +52,7 @@ namespace WebHookHub.Models.DB
         /// <summary>
         /// Client Event Webhooks
         /// </summary>
-        [System.Text.Json.Serialization.JsonIgnore] 
+        [System.Text.Json.Serialization.JsonIgnore]
         public IEnumerable<ClientEventWebhooks> ClientEventWebhooks { get; set; }
 
     }

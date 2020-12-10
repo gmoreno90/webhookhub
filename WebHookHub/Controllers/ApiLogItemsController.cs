@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebHookHub.Models.DB;
 
 namespace WebHookHub.Controllers
@@ -33,7 +32,7 @@ namespace WebHookHub.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ApiLogItem>>> GetClients(DateTime fromDate, DateTime toData)
         {
-            return await _context.ApiLogItems.Where(x => x.RequestTime >= fromDate && x.RequestTime <= toData).OrderBy(x=>x.RequestTime).ToListAsync();
+            return await _context.ApiLogItems.Where(x => x.RequestTime >= fromDate && x.RequestTime <= toData).OrderBy(x => x.RequestTime).ToListAsync();
         }
 
     }
