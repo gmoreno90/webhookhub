@@ -19,8 +19,9 @@ namespace WebHookHub
             {
                 CreateHostBuilder(args).Build().Run();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.Write(ex.Message);
                 System.Threading.Thread.Sleep(2000);
                 Environment.Exit(-1);
             }

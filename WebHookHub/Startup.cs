@@ -38,6 +38,7 @@ namespace WebHookHub
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
         }
         /// <summary>
         /// Configuration
@@ -50,6 +51,7 @@ namespace WebHookHub
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddDbContext<Models.DB.WebHookHubContext>(opt =>
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddHangfire(config =>
@@ -90,8 +92,6 @@ namespace WebHookHub
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = TimeIntervals.Length, DelaysInSeconds = TimeIntervals, OnAttemptsExceeded = AttemptsExceededAction.Fail });
             //Presrve Queue
             GlobalJobFilters.Filters.Add(new Filters.PreserveOriginalQueueAttribute());
-            //Override MaxArgumentToRenderSize HangFire
-            Models.Utils.HangFireUtils.SetMaxArgumentToRenderSize(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"));
 
             services.AddTransient<Services.ApiLogService>();
             services.AddTransient<Services.INotificationService, Services.NotificationService>();
@@ -169,6 +169,7 @@ namespace WebHookHub
 
             app.UseAuthorization();
             app.UseMiddleware<Middleware.ApiLoggingMiddleware>();
+
             var dashboardOptions = new DashboardOptions
             {
                 DashboardTitle = "WebHook Hub - HangFire",
@@ -190,6 +191,9 @@ namespace WebHookHub
             };
             NavigationMenu.Items.Add(page => new MenuItem("API Documentation", "/index.html"));
             app.UseHangfireDashboard(Configuration.GetValue<string>("HangFireConfig:DashboardPath"), dashboardOptions);
+
+            //Override MaxArgumentToRenderSize HangFire
+            //Models.Utils.HangFireUtils.SetMaxArgumentToRenderSize(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"));
             var options = new BackgroundJobServerOptions
             {
                 Queues = GetQueuesHangFire(app).ToArray()
