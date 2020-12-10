@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -14,14 +13,14 @@ namespace WebHookHub.Models.Utils
         /// <summary>
         /// _overrideTimeOut
         /// </summary>
-        private int _overrideTimeOut { get; set; }
+        private int OverrideTimeOut { get; set; }
         /// <summary>
         /// CustomWebClient
         /// </summary>
         /// <param name="TimeOutInSeconds"></param>
         public CustomWebClient(int TimeOutInSeconds = 0) : base()
         {
-            _overrideTimeOut = TimeOutInSeconds;
+            OverrideTimeOut = TimeOutInSeconds;
         }
         /// <summary>
         /// 
@@ -31,8 +30,8 @@ namespace WebHookHub.Models.Utils
         protected override WebRequest GetWebRequest(Uri uri)
         {
             WebRequest w = base.GetWebRequest(uri);
-            if (_overrideTimeOut != 0)
-                w.Timeout = _overrideTimeOut;
+            if (OverrideTimeOut != 0)
+                w.Timeout = OverrideTimeOut;
             return w;
         }
     }
