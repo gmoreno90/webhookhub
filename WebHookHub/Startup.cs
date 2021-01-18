@@ -86,6 +86,7 @@ namespace WebHookHub
                     })
                     .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(1))
                     .UseTagsWithSql()
+                    .UseMaxArgumentSizeToRender(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"))
                     );
             //Retry Intervals
             var TimeIntervals = Configuration.GetSection("HangFireConfig:HangFireRetryIntervalInSeconds").Get<int[]>();
