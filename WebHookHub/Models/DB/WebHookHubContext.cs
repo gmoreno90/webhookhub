@@ -40,6 +40,12 @@ namespace WebHookHub.Models.DB
         public DbSet<ApiLogItem> ApiLogItems { get; set; }
 
         /// <summary>
+        /// DataToPost
+        /// </summary>
+        public DbSet<DataToPost> DataToPosts { get; set; }
+        
+
+        /// <summary>
         /// OnModelCreating
         /// </summary>
         /// <param name="modelBuilder"></param>

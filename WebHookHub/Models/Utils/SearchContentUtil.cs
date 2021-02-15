@@ -20,7 +20,10 @@ namespace WebHookHub.Models.Utils
             {
                 var resMatch1 = Regex.Match(input, pattern, RegexOptions.CultureInvariant);
                 if (resMatch1.Success)
-                    return resMatch1.Value;
+                    if(resMatch1.Groups.Count > 1) 
+                        return resMatch1.Groups[1].Value;
+                    else
+                        return resMatch1.Value;
                 return "";
             }
             catch (Exception ex)

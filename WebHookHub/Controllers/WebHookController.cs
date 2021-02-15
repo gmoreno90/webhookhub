@@ -42,7 +42,13 @@ namespace WebHookHub.Controllers
         {
             try
             {
-                string strRQ = await ReadRequestBody(Request);
+                string strRQ = "";
+                using (StreamReader reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8))
+                {
+                    strRQ = await reader.ReadToEndAsync(); ;
+                    //return res;
+                }
+                //string strRQ = await ReadRequestBody(Request);
 
                 return await _service.PostData(new Models.PostDataContent()
                 {
@@ -66,14 +72,19 @@ namespace WebHookHub.Controllers
         /// <returns></returns>
         private async Task<string> ReadRequestBody(Microsoft.AspNetCore.Http.HttpRequest request)
         {
-            //request.EnableRewind();
-            request.EnableBuffering();
-            var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-            await request.Body.ReadAsync(buffer, 0, buffer.Length);
-            var bodyAsText = System.Text.Encoding.UTF8.GetString(buffer);
-            request.Body.Seek(0, SeekOrigin.Begin);
+            using (StreamReader reader = new StreamReader(request.Body, System.Text.Encoding.UTF8))
+            {
+                var res = await reader.ReadToEndAsync(); ;
+                return res;
+            }
+            ////request.EnableRewind();
+            //request.EnableBuffering();
+            //var buffer = new byte[Convert.ToInt32(request.ContentLength)];
+            //await request.Body.ReadAsync(buffer, 0, buffer.Length);
+            //var bodyAsText = System.Text.Encoding.UTF8.GetString(buffer);
+            //request.Body.Seek(0, SeekOrigin.Begin);
 
-            return bodyAsText;
+            //return bodyAsText;
         }
     }
 }
