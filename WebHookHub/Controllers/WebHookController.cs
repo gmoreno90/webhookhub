@@ -31,7 +31,7 @@ namespace WebHookHub.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Post Data
         /// </summary>
         /// <param name="EventCode">Event Code String</param>
         /// <param name="ClientCode">Cliente Code String</param>
@@ -46,16 +46,16 @@ namespace WebHookHub.Controllers
                 using (StreamReader reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8))
                 {
                     strRQ = await reader.ReadToEndAsync(); ;
-                    //return res;
                 }
-                //string strRQ = await ReadRequestBody(Request);
-
+                
                 return await _service.PostData(new Models.PostDataContent()
                 {
                     EventCode = EventCode,
                     ClientCode = ClientCode,
                     PostData = strRQ,
-                    ContentType = Request.ContentType
+                    ContentType = Request.ContentType,
+                    DelayMode = Models.DelayModeEnum.Instant,
+                    DelayValue = 0D
                 });
             }
             catch (Exception ex)
@@ -66,25 +66,68 @@ namespace WebHookHub.Controllers
 
         }
         /// <summary>
-        /// Helper to readRequest Body
+        /// Post Data Delayed
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="EventCode"></param>
+        /// <param name="ClientCode"></param>
+        /// <param name="DelayMode"></param>
+        /// <param name="DelayValue"></param>
         /// <returns></returns>
-        private async Task<string> ReadRequestBody(Microsoft.AspNetCore.Http.HttpRequest request)
+        [HttpPost]
+        [Route("PostDataDelayed/{EventCode}/{ClientCode}/{DelayMode}/{DelayValue}")]
+        public async Task<string> PostDataDelayed(string EventCode, string ClientCode, Models.DelayModeEnum DelayMode, decimal DelayValue)
         {
-            using (StreamReader reader = new StreamReader(request.Body, System.Text.Encoding.UTF8))
+            try
             {
-                var res = await reader.ReadToEndAsync(); ;
-                return res;
-            }
-            ////request.EnableRewind();
-            //request.EnableBuffering();
-            //var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-            //await request.Body.ReadAsync(buffer, 0, buffer.Length);
-            //var bodyAsText = System.Text.Encoding.UTF8.GetString(buffer);
-            //request.Body.Seek(0, SeekOrigin.Begin);
+                string strRQ = "";
+                using (StreamReader reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8))
+                {
+                    strRQ = await reader.ReadToEndAsync(); ;
+                }
 
-            //return bodyAsText;
+                return await _service.PostData(new Models.PostDataContent()
+                {
+                    EventCode = EventCode,
+                    ClientCode = ClientCode,
+                    PostData = strRQ,
+                    ContentType = Request.ContentType,
+                    DelayMode = DelayMode,
+                    DelayValue = (double?)DelayValue
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message + " : " + ex.StackTrace);
+                return ex.Message;
+            }
+
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="JobID">JobID</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("DeleteJob/{JobID}")]
+        public async Task<bool> DeleteJob(string JobID)
+        {
+            try
+            {
+                string strRQ = "";
+                using (StreamReader reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8))
+                {
+                    strRQ = await reader.ReadToEndAsync(); ;
+                }
+
+                return await _service.DeleteJob(JobID);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message + " : " + ex.StackTrace);
+                return false;
+            }
+
+        }
+
     }
 }

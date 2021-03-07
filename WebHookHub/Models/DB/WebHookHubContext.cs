@@ -43,7 +43,6 @@ namespace WebHookHub.Models.DB
         /// DataToPost
         /// </summary>
         public DbSet<DataToPost> DataToPosts { get; set; }
-        
 
         /// <summary>
         /// OnModelCreating

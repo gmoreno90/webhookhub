@@ -145,7 +145,6 @@ namespace WebHookHub
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseDeveloperExceptionPage();
             //app.Use((context, next) =>
             //{
             //    context.Request.EnableBuffering();

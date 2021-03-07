@@ -22,6 +22,14 @@
         /// </summary>
         public string ContentType { get; set; }
         /// <summary>
+        /// Delay Mode
+        /// </summary>
+        public DelayModeEnum DelayMode { get; set; }
+        /// <summary>
+        /// Delay Value
+        /// </summary>
+        public double? DelayValue { get; set; }
+        /// <summary>
         /// ToString
         /// </summary>
         /// <returns></returns>
