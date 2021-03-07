@@ -5,8 +5,7 @@ The proposal for this project is that want to have a Web Hook Hub to manage all 
 
 &nbsp; | `master` | `dev`
 --- | --- | --- 
-**Linux / OS X** | [![Travis CI Build Status](https://travis-ci.com/gmoreno90/webhookhub.svg?branch=main)](https://travis-ci.com/github/gmoreno90/webhookhub) | [![Linux and OS X Build Status](https://travis-ci.com/gmoreno90/webhookhub.svg?branch=develop)](https://travis-ci.com/github/gmoreno90/webhookhub)
-<!---**Windows** | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/70m632jkycqpnsp9/branch/master?svg=true)](https://ci.appveyor.com/project/odinserj/hangfire-525)  | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/70m632jkycqpnsp9/branch/dev?svg=true)](https://ci.appveyor.com/project/odinserj/hangfire-525) -->
+**Linux / OS X** | [![Azure CI Build Status](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/master/webhookhub-master-ci)](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/master/webhookhub-master-ci) | [![Linux and OS X Build Status](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/development/webhookhub-dev-ci)](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/development/webhookhub-dev-ci)
 
 ### Main Features!
 - Multiple Clients
@@ -46,7 +45,19 @@ Inject appsettings.json file
 }
 ```
 
-### Service Allways
+####Using Environment Variables 
+
+```
+ConnectionStrings__DefaultConnection 	server=XXXXXXXX;database=YYYYYYYYYY;uid=WWWWWWWWW;password=ZZZZZZZZ;
+HangFireConfig__DashboardUserName		XXXXXXX2
+HangFireConfig__DashboardPassword		YYYYYYY2
+HangFireConfig__DashboardPath			/HangFireDashboard2
+	
+```
+
+
+
+### Service Allways UP
 
 In order to configure this website allways up, please follow the next documentation
 
@@ -70,9 +81,3 @@ docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
 * [HangFire] - For Manage Queues and Background Process.
 
 
-License
-----
-
-MIT
-
-**Free Software, Hell Yeah!**

@@ -14,7 +14,7 @@
       "launchBrowser": true,
       "launchUrl": "HangFireDashboard",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "DevPolaris"
+        "ASPNETCORE_ENVIRONMENT": "Production"
       }
     },
     "WebHookHub": {

@@ -1,28 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.Dashboard.BasicAuthorization;
+using Hangfire.Heartbeat;
+using Hangfire.Heartbeat.Server;
 using Hangfire.SqlServer;
+using Hangfire.Tags;
+using Hangfire.Tags.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using Hangfire.Dashboard.BasicAuthorization;
-using Hangfire.Dashboard;
-using Hangfire.Heartbeat.Server;
-using Hangfire.Heartbeat;
-using Hangfire.Tags;
-using Hangfire.Tags.SqlServer;
+using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace WebHookHub
 {
@@ -42,6 +38,7 @@ namespace WebHookHub
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
         }
         /// <summary>
         /// Configuration
@@ -54,6 +51,7 @@ namespace WebHookHub
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddDbContext<Models.DB.WebHookHubContext>(opt =>
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddHangfire(config =>
@@ -88,6 +86,7 @@ namespace WebHookHub
                     })
                     .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(1))
                     .UseTagsWithSql()
+                    .UseMaxArgumentSizeToRender(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"))
                     );
             //Retry Intervals
             var TimeIntervals = Configuration.GetSection("HangFireConfig:HangFireRetryIntervalInSeconds").Get<int[]>();
@@ -171,6 +170,7 @@ namespace WebHookHub
 
             app.UseAuthorization();
             app.UseMiddleware<Middleware.ApiLoggingMiddleware>();
+
             var dashboardOptions = new DashboardOptions
             {
                 DashboardTitle = "WebHook Hub - HangFire",
@@ -192,6 +192,9 @@ namespace WebHookHub
             };
             NavigationMenu.Items.Add(page => new MenuItem("API Documentation", "/index.html"));
             app.UseHangfireDashboard(Configuration.GetValue<string>("HangFireConfig:DashboardPath"), dashboardOptions);
+
+            //Override MaxArgumentToRenderSize HangFire
+            //Models.Utils.HangFireUtils.SetMaxArgumentToRenderSize(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"));
             var options = new BackgroundJobServerOptions
             {
                 Queues = GetQueuesHangFire(app).ToArray()

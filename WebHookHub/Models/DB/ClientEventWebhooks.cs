@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebHookHub.Models.DB
 {
@@ -24,7 +20,7 @@ namespace WebHookHub.Models.DB
         /// <summary>
         /// Client Event
         /// </summary>
-        [System.Text.Json.Serialization.JsonIgnore] 
+        [System.Text.Json.Serialization.JsonIgnore]
         public virtual ClientEvent ClientEvent { get; set; }
         /// <summary>
         /// PostUrl

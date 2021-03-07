@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace WebHookHub.Models
+﻿namespace WebHookHub.Models
 {
     /// <summary>
     /// Post Data Content
@@ -26,6 +21,14 @@ namespace WebHookHub.Models
         /// ContentType
         /// </summary>
         public string ContentType { get; set; }
+        /// <summary>
+        /// Delay Mode
+        /// </summary>
+        public DelayModeEnum DelayMode { get; set; }
+        /// <summary>
+        /// Delay Value
+        /// </summary>
+        public double? DelayValue { get; set; }
         /// <summary>
         /// ToString
         /// </summary>

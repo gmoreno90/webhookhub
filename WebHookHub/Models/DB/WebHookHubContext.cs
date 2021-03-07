@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace WebHookHub.Models.DB
 {
@@ -18,7 +14,8 @@ namespace WebHookHub.Models.DB
         /// </summary>
         /// <param name="options"></param>
         /// <param name="config"></param>
-        public WebHookHubContext(DbContextOptions<WebHookHubContext> options, IConfiguration config) : base(options) {
+        public WebHookHubContext(DbContextOptions<WebHookHubContext> options, IConfiguration config) : base(options)
+        {
             _config = config;
         }
         /// <summary>
@@ -41,6 +38,11 @@ namespace WebHookHub.Models.DB
         /// ApiLogItems
         /// </summary>
         public DbSet<ApiLogItem> ApiLogItems { get; set; }
+
+        /// <summary>
+        /// DataToPost
+        /// </summary>
+        public DbSet<DataToPost> DataToPosts { get; set; }
 
         /// <summary>
         /// OnModelCreating

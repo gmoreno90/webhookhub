@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using WebHookHub.Models.DB;
 using WebHookHub.Services;
@@ -44,7 +42,7 @@ namespace WebHookHub.Middleware
                         responseBodyContent = await ReadResponseBody(response);
                         await responseBody.CopyToAsync(originalBodyStream);
 
-                        await SafeLog(requestTime,
+                        SafeLog(requestTime,
                             stopWatch.ElapsedMilliseconds,
                             response.StatusCode,
                             request.Method,
@@ -61,6 +59,7 @@ namespace WebHookHub.Middleware
             }
             catch (Exception ex)
             {
+                var str = ex.Message;
                 await _next(httpContext);
             }
         }
@@ -86,7 +85,7 @@ namespace WebHookHub.Middleware
             return bodyAsText;
         }
 
-        private async Task SafeLog(DateTime requestTime,
+        private void SafeLog(DateTime requestTime,
                             long responseMillis,
                             int statusCode,
                             string method,
@@ -119,22 +118,22 @@ namespace WebHookHub.Middleware
             {
                 try
                 {
-                    Task.Factory.StartNew(() =>
-                    {
-                        _apiLogService.Log(new ApiLogItem
-                        {
-                            Id = Guid.NewGuid().ToString("N"),
-                            RequestTime = requestTime,
-                            ResponseMillis = responseMillis,
-                            StatusCode = statusCode,
-                            Method = method,
-                            Path = path,
-                            QueryString = queryString,
-                            RequestBody = requestBody,
-                            ResponseBody = responseBody,
-                            RequestToken = Guid.NewGuid().ToString()
-                        });
-                    });
+                    _ = Task.Factory.StartNew(() =>
+                      {
+                          _ = _apiLogService.Log(new ApiLogItem
+                          {
+                              Id = Guid.NewGuid().ToString("N"),
+                              RequestTime = requestTime,
+                              ResponseMillis = responseMillis,
+                              StatusCode = statusCode,
+                              Method = method,
+                              Path = path,
+                              QueryString = queryString,
+                              RequestBody = requestBody,
+                              ResponseBody = responseBody,
+                              RequestToken = Guid.NewGuid().ToString()
+                          });
+                      });
                 }
                 catch (Exception ex)
                 {

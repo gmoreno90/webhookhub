@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebHookHub.Models.DB;
@@ -61,7 +60,7 @@ namespace WebHookHub.Services
                 _logger.LogInformation(apiLogItem.RequestBody);
                 await _db.ApiLogItems.AddAsync(apiLogItem);
                 await _db.SaveChangesAsync();
-                
+
             }
             catch (Exception ex)
             {
@@ -95,7 +94,7 @@ namespace WebHookHub.Services
                 _logger.LogError(ex.Message);
                 return false;
             }
-            
+
         }
     }
 }
