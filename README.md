@@ -5,15 +5,17 @@ The proposal for this project is that want to have a Web Hook Hub to manage all 
 
 &nbsp; | `master` | `dev`
 --- | --- | --- 
-**Linux / OS X** | [![Azure CI Build Status](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/master/webhookhub-master-ci)](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/master/webhookhub-master-ci) | [![Linux and OS X Build Status](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/development/webhookhub-dev-ci)](https://dev.azure.com/PolarisInformatica/Proyecto1/_apis/build/status/development/webhookhub-dev-ci)
+**Linux / OS X** | [![Travis CI Build Status](https://travis-ci.com/gmoreno90/webhookhub.svg?branch=main)](https://travis-ci.com/github/gmoreno90/webhookhub) | [![Linux and OS X Build Status](https://travis-ci.com/gmoreno90/webhookhub.svg?branch=develop)](https://travis-ci.com/github/gmoreno90/webhookhub)
+<!---**Windows** | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/70m632jkycqpnsp9/branch/master?svg=true)](https://ci.appveyor.com/project/odinserj/hangfire-525)  | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/70m632jkycqpnsp9/branch/dev?svg=true)](https://ci.appveyor.com/project/odinserj/hangfire-525) -->
 
 ### Main Features!
 - Multiple Clients
 - Multiple Events
 - Multiple Configurations (Enpoints)
-- Retry Policies
+- Custom Retry Policies
 - Background Jobs
 - Multi-Server Manage Jobs
+- Webhook Request Instant process or delayed
 
 ### Flow Diagram
 
@@ -37,11 +39,14 @@ Inject appsettings.json file
     "HangFireRetryIntervalInSeconds": [ 10, 30, 60, 120 ],
     "DashboardUserName": "XXXXXX",
     "DashboardPassword": "YYYYYY",
-    "DashboardPath": "/HangFireDashboard"
+    "DashboardPath": "/HangFireDashboard",
+	"MaxArgumentToRenderSize":  25000
   },
   "ConnectionStrings": {
     "DefaultConnection": "server=XXXXXXXX;database=YYYYYYYYYY;uid=WWWWWWWWW;password=ZZZZZZZZ;"
-  }
+  },
+  "DefaultTimeOutInMiliSeconds": 20000,
+  "VersionNumber": "v1.0.1" 
 }
 ```
 
@@ -57,7 +62,7 @@ HangFireConfig__DashboardPath			/HangFireDashboard2
 
 
 
-### Service Allways UP
+### Service Allways
 
 In order to configure this website allways up, please follow the next documentation
 
@@ -81,3 +86,9 @@ docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
 * [HangFire] - For Manage Queues and Background Process.
 
 
+License
+----
+
+MIT
+
+**Free Software, Hell Yeah!**
