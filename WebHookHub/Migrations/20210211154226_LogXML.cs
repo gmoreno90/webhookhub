@@ -2,7 +2,7 @@
 
 namespace WebHookHub.Migrations
 {
-    public partial class DataToPost : Migration
+    public partial class LogXML : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
