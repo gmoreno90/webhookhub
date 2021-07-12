@@ -8,15 +8,12 @@ namespace WebHookHub.Models.DB
     /// </summary>
     public class WebHookHubContext : DbContext
     {
-        private readonly IConfiguration _config;
         /// <summary>
         /// WebHookHubContext
         /// </summary>
         /// <param name="options"></param>
-        /// <param name="config"></param>
-        public WebHookHubContext(DbContextOptions<WebHookHubContext> options, IConfiguration config) : base(options)
+        public WebHookHubContext(DbContextOptions<WebHookHubContext> options) : base(options)
         {
-            _config = config;
         }
         /// <summary>
         /// Clients
@@ -44,13 +41,6 @@ namespace WebHookHub.Models.DB
         /// </summary>
         public DbSet<DataToPost> DataToPosts { get; set; }
 
-        /// <summary>
-        /// OnModelCreating
-        /// </summary>
-        /// <param name="modelBuilder"></param>
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
+        
     }
 }

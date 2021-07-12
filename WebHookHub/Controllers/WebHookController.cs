@@ -45,7 +45,7 @@ namespace WebHookHub.Controllers
                 string strRQ = "";
                 using (StreamReader reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8))
                 {
-                    strRQ = await reader.ReadToEndAsync(); ;
+                    strRQ = await reader.ReadToEndAsync();
                 }
                 
                 return await _service.PostData(new Models.PostDataContent()
@@ -54,7 +54,7 @@ namespace WebHookHub.Controllers
                     ClientCode = ClientCode,
                     PostData = strRQ,
                     ContentType = Request.ContentType,
-                    DelayMode = Models.DelayModeEnum.Instant,
+                    DelayMode = Models.DelayMode.Instant,
                     DelayValue = 0D
                 });
             }
@@ -75,14 +75,14 @@ namespace WebHookHub.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("PostDataDelayed/{EventCode}/{ClientCode}/{DelayMode}/{DelayValue}")]
-        public async Task<string> PostDataDelayed(string EventCode, string ClientCode, Models.DelayModeEnum DelayMode, decimal DelayValue)
+        public async Task<string> PostDataDelayed(string EventCode, string ClientCode, Models.DelayMode DelayMode, decimal DelayValue)
         {
             try
             {
                 string strRQ = "";
                 using (StreamReader reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8))
                 {
-                    strRQ = await reader.ReadToEndAsync(); ;
+                    strRQ = await reader.ReadToEndAsync();
                 }
 
                 return await _service.PostData(new Models.PostDataContent()
@@ -113,12 +113,6 @@ namespace WebHookHub.Controllers
         {
             try
             {
-                string strRQ = "";
-                using (StreamReader reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8))
-                {
-                    strRQ = await reader.ReadToEndAsync(); ;
-                }
-
                 return await _service.DeleteJob(JobID);
             }
             catch (Exception ex)

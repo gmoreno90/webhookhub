@@ -42,14 +42,17 @@ namespace WebHookHub.Middleware
                         responseBodyContent = await ReadResponseBody(response);
                         await responseBody.CopyToAsync(originalBodyStream);
 
-                        SafeLog(requestTime,
-                            stopWatch.ElapsedMilliseconds,
-                            response.StatusCode,
-                            request.Method,
-                            request.Path,
-                            request.QueryString.ToString(),
-                            requestBodyContent,
-                            responseBodyContent);
+                        SafeLog(new SafeLogRQ()
+                        {
+                            requestTime = requestTime,
+                            responseMillis = stopWatch.ElapsedMilliseconds,
+                            statusCode = response.StatusCode,
+                            method = request.Method,
+                            path = request.Path,
+                            queryString = request.QueryString.ToString(),
+                            requestBody = requestBodyContent,
+                            responseBody = responseBodyContent
+                        });
                     }
                 }
                 else
@@ -57,26 +60,25 @@ namespace WebHookHub.Middleware
                     await _next(httpContext);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var str = ex.Message;
                 await _next(httpContext);
             }
         }
 
-        private async Task<string> ReadRequestBody(HttpRequest request)
+        private static async Task<string> ReadRequestBody(HttpRequest request)
         {
-            //request.EnableRewind();
             request.EnableBuffering();
             var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-            await request.Body.ReadAsync(buffer, 0, buffer.Length);
+            Memory<byte> memory = new Memory<byte>(buffer);
+            await request.Body.ReadAsync(memory);
             var bodyAsText = System.Text.Encoding.UTF8.GetString(buffer);
             request.Body.Seek(0, SeekOrigin.Begin);
 
             return bodyAsText;
         }
 
-        private async Task<string> ReadResponseBody(HttpResponse response)
+        private static async Task<string> ReadResponseBody(HttpResponse response)
         {
             response.Body.Seek(0, SeekOrigin.Begin);
             var bodyAsText = await new StreamReader(response.Body).ReadToEndAsync();
@@ -85,36 +87,29 @@ namespace WebHookHub.Middleware
             return bodyAsText;
         }
 
-        private void SafeLog(DateTime requestTime,
-                            long responseMillis,
-                            int statusCode,
-                            string method,
-                            string path,
-                            string queryString,
-                            string requestBody,
-                            string responseBody)
+        private void SafeLog(SafeLogRQ rq)
         {
-            if (path.ToLower().StartsWith("/api/users"))
+            if (rq.path.ToLower().StartsWith("/api/users"))
             {
-                requestBody = "(Request logging disabled for /api/users)";
-                responseBody = "(Response logging disabled for /api/users)";
+                rq.requestBody = "(Request logging disabled for /api/users)";
+                rq.responseBody = "(Response logging disabled for /api/users)";
             }
 
-            if (requestBody.Length > 5000)
+            if (rq.requestBody.Length > 5000)
             {
-                requestBody = $"(Truncated to 5000 chars) {requestBody.Substring(0, 5000)}";
+                rq.requestBody = $"(Truncated to 5000 chars) {rq.requestBody.Substring(0, 5000)}";
             }
 
-            if (responseBody.Length > 5000)
+            if (rq.responseBody.Length > 5000)
             {
-                responseBody = $"(Truncated to 5000 chars) {responseBody.Substring(0, 5000)}";
+                rq.responseBody = $"(Truncated to 5000 chars) {rq.responseBody.Substring(0, 5000)}";
             }
 
-            if (queryString.Length > 5000)
+            if (rq.queryString.Length > 5000)
             {
-                queryString = $"(Truncated to 5000 chars) {queryString.Substring(0, 5000)}";
+                rq.queryString = $"(Truncated to 5000 chars) {rq.queryString.Substring(0, 5000)}";
             }
-            if (!path.ToLower().StartsWith("/api/status"))
+            if (!rq.path.ToLower().StartsWith("/api/status"))
             {
                 try
                 {
@@ -123,26 +118,38 @@ namespace WebHookHub.Middleware
                           _ = _apiLogService.Log(new ApiLogItem
                           {
                               Id = Guid.NewGuid().ToString("N"),
-                              RequestTime = requestTime,
-                              ResponseMillis = responseMillis,
-                              StatusCode = statusCode,
-                              Method = method,
-                              Path = path,
-                              QueryString = queryString,
-                              RequestBody = requestBody,
-                              ResponseBody = responseBody,
+                              RequestTime = rq.requestTime,
+                              ResponseMillis = rq.responseMillis,
+                              StatusCode = rq.statusCode,
+                              Method = rq.method,
+                              Path = rq.path,
+                              QueryString = rq.queryString,
+                              RequestBody = rq.requestBody,
+                              ResponseBody = rq.responseBody,
                               RequestToken = Guid.NewGuid().ToString()
                           });
                       });
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    string esMsg = ex.Message;
+                    //We can ignore becouse is not usefull data when crash the logs
                 }
 
 
             }
 
+        }
+
+        public class SafeLogRQ
+        {
+            public DateTime requestTime { get; set; }
+            public long responseMillis { get; set; }
+            public int statusCode { get; set; }
+            public string method { get; set; }
+            public string path { get; set; }
+            public string queryString { get; set; }
+            public string requestBody { get; set; }
+            public string responseBody { get; set; }
         }
     }
 }
