@@ -28,26 +28,22 @@ namespace WebHookHub.Models.DB
         [Required]
         [MaxLength(5000), MinLength(2)]
         public string PostUrl { get; set; }
-        /// <summary>
-        /// UserName
-        /// </summary>
-        [MaxLength(500)]
-        public string UserName { get; set; }
-        /// <summary>
-        /// PassWord
-        /// </summary>
-        [MaxLength(500)]
-        public string PassWord { get; set; }
+        
         /// <summary>
         /// Enable
         /// </summary>
-
         public bool Enable { get; set; }
         /// <summary>
         /// ExpectedContentResulto
         /// </summary>
         [MaxLength(5000)]
         public string ExpectedContentResult { get; set; }
+
+        /// <summary>
+        /// Header Authorization Value
+        /// </summary>
+        [MaxLength(4000)]
+        public string HeaderAuthorizationValue { get; set; }
 
     }
 }

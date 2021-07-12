@@ -92,14 +92,12 @@ namespace WebHookHub
             var TimeIntervals = Configuration.GetSection("HangFireConfig:HangFireRetryIntervalInSeconds").Get<int[]>();
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = TimeIntervals.Length, DelaysInSeconds = TimeIntervals, OnAttemptsExceeded = AttemptsExceededAction.Fail });
             //Presrve Queue
-            GlobalJobFilters.Filters.Add(new Filters.PreserveOriginalQueueAttribute());
+            GlobalJobFilters.Filters.Add(new Filters.CustomHangfireFilterAttribute());
 
             services.AddTransient<Services.ApiLogService>();
             services.AddTransient<Services.INotificationService, Services.NotificationService>();
 
             // Add the processing server as IHostedService
-            //services.AddHangfireServer();
-
             services.AddControllers()
                 .AddJsonOptions(x =>
                 {
@@ -145,11 +143,6 @@ namespace WebHookHub
             {
                 app.UseDeveloperExceptionPage();
             }
-            //app.Use((context, next) =>
-            //{
-            //    context.Request.EnableBuffering();
-            //    return next();
-            //});
             UpdateDatabase(app);
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
@@ -193,8 +186,6 @@ namespace WebHookHub
             NavigationMenu.Items.Add(page => new MenuItem("API Documentation", "/index.html"));
             app.UseHangfireDashboard(Configuration.GetValue<string>("HangFireConfig:DashboardPath"), dashboardOptions);
 
-            //Override MaxArgumentToRenderSize HangFire
-            //Models.Utils.HangFireUtils.SetMaxArgumentToRenderSize(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"));
             var options = new BackgroundJobServerOptions
             {
                 Queues = GetQueuesHangFire(app).ToArray()
@@ -209,7 +200,7 @@ namespace WebHookHub
         /// UpdateDatabase
         /// </summary>
         /// <param name="app"></param>
-        private void UpdateDatabase(IApplicationBuilder app)
+        private static void UpdateDatabase(IApplicationBuilder app)
         {
             using var serviceScope = app.ApplicationServices
             .GetRequiredService<IServiceScopeFactory>()
@@ -224,7 +215,7 @@ namespace WebHookHub
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
-        private List<string> GetQueuesHangFire(IApplicationBuilder app)
+        private static List<string> GetQueuesHangFire(IApplicationBuilder app)
         {
             using var serviceScope = app.ApplicationServices
             .GetRequiredService<IServiceScopeFactory>()

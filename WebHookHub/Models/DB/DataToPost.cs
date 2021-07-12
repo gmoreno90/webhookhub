@@ -22,6 +22,11 @@ namespace WebHookHub.Models.DB
         [Required]
         [MaxLength(500000)]
         public string Content { get; set; }
+        /// <summary>
+        /// request Date
+        /// </summary>
+        [Required]
+        public DateTime RequestDate { get; set; }
 
     }
 }

@@ -62,7 +62,7 @@ HangFireConfig__DashboardPath			/HangFireDashboard2
 
 
 
-### Service Allways
+### Service Allways UP
 
 In order to configure this website allways up, please follow the next documentation
 

@@ -24,7 +24,7 @@
         /// <summary>
         /// Delay Mode
         /// </summary>
-        public DelayModeEnum DelayMode { get; set; }
+        public DelayMode DelayMode { get; set; }
         /// <summary>
         /// Delay Value
         /// </summary>
@@ -40,6 +40,8 @@
             strReturn += "Client Code: " + ClientCode + "\n";
             strReturn += "Post Data: " + PostData + "\n";
             strReturn += "Content Type: " + ContentType + "\n";
+            strReturn += "Delay Mode: " + DelayMode.ToString() + "\n";
+            strReturn += "Delay Value: " + (DelayValue.HasValue ? DelayValue.Value : "") + "\n";
             return strReturn;
         }
     }

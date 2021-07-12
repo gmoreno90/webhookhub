@@ -26,9 +26,8 @@ namespace WebHookHub.Models.Utils
                         return resMatch1.Value;
                 return "";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var str = ex.Message;
                 return "";
             }
 
