@@ -187,7 +187,7 @@ namespace WebHookHub.Services
 
                 if (!string.IsNullOrEmpty(expectedResult))
                 {
-                    if (HtmlResult != expectedResult)
+                    if (!HtmlResult.Contains(expectedResult))
                     {
                         throw new Exception("[Unexpected content result]");
                     }
