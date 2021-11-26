@@ -46,7 +46,7 @@ namespace WebHookHub.Services
             _config = config;
             var contextOptionBuilder = new DbContextOptionsBuilder<Models.DB.WebHookHubContext>();
             contextOptionBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
-            _db = new Models.DB.WebHookHubContext(contextOptionBuilder.Options, config);
+            _db = new Models.DB.WebHookHubContext(contextOptionBuilder.Options);
         }
         /// <summary>
         /// Log
@@ -64,7 +64,7 @@ namespace WebHookHub.Services
             }
             catch (Exception ex)
             {
-                string strLogs = ex.Message;
+                _logger.LogError(ex.Message + " : " + ex.StackTrace);
             }
         }
 

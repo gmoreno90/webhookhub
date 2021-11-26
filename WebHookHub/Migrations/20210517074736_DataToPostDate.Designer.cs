@@ -10,16 +10,16 @@ using WebHookHub.Models.DB;
 namespace WebHookHub.Migrations
 {
     [DbContext(typeof(WebHookHubContext))]
-    [Migration("20210211112329_DataToPost")]
-    partial class DataToPost
+    [Migration("20210517074736_DataToPostDate")]
+    partial class DataToPostDate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.2");
+                .HasAnnotation("ProductVersion", "5.0.3")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("WebHookHub.Models.DB.ApiLogItem", b =>
                 {
@@ -72,7 +72,7 @@ namespace WebHookHub.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -94,7 +94,7 @@ namespace WebHookHub.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -127,7 +127,7 @@ namespace WebHookHub.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("ClientEventId")
                         .HasColumnType("int");
@@ -169,6 +169,9 @@ namespace WebHookHub.Migrations
                         .HasMaxLength(500000)
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("ID");
 
                     b.ToTable("DataToPosts");
@@ -179,7 +182,7 @@ namespace WebHookHub.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Code")
                         .IsRequired()

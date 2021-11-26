@@ -22,11 +22,11 @@ namespace WebHookHub.Models.Utils
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="uri"></param>
+        /// <param name="address"></param>
         /// <returns></returns>
-        protected override WebRequest GetWebRequest(System.Uri uri)
+        protected override WebRequest GetWebRequest(System.Uri address)
         {
-            WebRequest w = base.GetWebRequest(uri);
+            WebRequest w = base.GetWebRequest(address);
             if (OverrideTimeOut != 0)
                 w.Timeout = OverrideTimeOut;
             return w;
