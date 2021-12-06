@@ -64,6 +64,7 @@ namespace WebHookHub.Services
             try
             {
                 int TimeOutInMsSecs = _config.GetValue<int>("DefaultTimeOutInMiliSeconds");
+                int JobDelay = _config.GetValue<int>("HangFireConfig:JobDelay");
                 var idData = Guid.NewGuid().ToString();
                 _context.DataToPosts.Add(new Models.DB.DataToPost() { ID = idData, Content = postDataContent.PostData, RequestDate = DateTime.Now });
                 await _context.SaveChangesAsync();
@@ -88,19 +89,26 @@ namespace WebHookHub.Services
                         {
                             foreach (var item in eventClient.ClientEventWebhooks)
                             {
-                                
+
                                 if (postDataContent.DelayMode == Models.DelayMode.Instant)
                                 {
-                                   
-                                    listJobIds.Add(EnqueueRequest(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs, ID, IDExtra, item.HeaderAuthorizationValue, item.ExpectedContentResult));
+
+                                    listJobIds.Add(EnqueueRequest(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs, ID, IDExtra, item.HeaderAuthorizationValue, item.ExpectedContentResult, JobDelay, postDataContent.ParentJobID));
                                 }
-                                else {
-                                    var jobId = new BackgroundJobClient().Schedule<NotificationService>(x => x.EnqueueRequest(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs, ID, IDExtra, item.HeaderAuthorizationValue, item.ExpectedContentResult), TimeSpan.FromSeconds(postDataContent.DelayValue.Value));
+                                else
+                                {
+                                    var jobId = new BackgroundJobClient().Schedule<NotificationService>(x => x.EnqueueRequest(postDataContent.ClientCode, postDataContent.EventCode, item.PostUrl, postDataContent.PostData, postDataContent.ContentType, TimeOutInMsSecs, ID, IDExtra, item.HeaderAuthorizationValue, item.ExpectedContentResult, JobDelay, postDataContent.ParentJobID), TimeSpan.FromSeconds(postDataContent.DelayValue.Value));
                                     listJobIds.Add(jobId);
                                 }
-                                
+
                                 _logger.LogInformation(postDataContent.ToString());
                             }
+                            if (listJobIds.Count() > 0 && !string.IsNullOrEmpty(postDataContent.CustomJobID))
+                            {
+                                await _context.CustomJobIDs.AddAsync(new Models.DB.CustomJobID { ExternalJobID = postDataContent.CustomJobID, InternalJobID = listJobIds.FirstOrDefault() });
+                                await _context.SaveChangesAsync();
+                            }
+
                             return eventClient.ContentReponseOk;
                         }
                         else
@@ -166,20 +174,25 @@ namespace WebHookHub.Services
         /// <param name="IDExtra"></param>
         /// <param name="HeaderAuthorizationValue"></param>
         /// <param name="expectedResult"></param>
+        /// <param name="dealyJob"></param>
+        /// <param name="parentJobId"></param>
         /// <returns></returns>
         [DisplayName("SendData: [{1}:{0}][{6} | {7}]")]
         [Tag("SendData", "{0}", "{1}")]
-        public string SendData(string ClientCode, string EventCode, string urlToPost, string dataToPost, string contentType, int TimeOutInMsSecs, string ID, string IDExtra, string HeaderAuthorizationValue, string expectedResult = "")
+        public string SendData(string ClientCode, string EventCode, string urlToPost, string dataToPost, string contentType, int TimeOutInMsSecs, string ID, string IDExtra, string HeaderAuthorizationValue, string expectedResult = "", int dealyJob = 0, string parentJobId = "")
         {
-
+            if (dealyJob != 0)
+            {
+                System.Threading.Thread.Sleep(dealyJob);
+            }
             using (CustomWebClient wc = new CustomWebClient(TimeOutInMsSecs))
             {
                 //Header Autorization Value
-                if(!string.IsNullOrEmpty(HeaderAuthorizationValue))
+                if (!string.IsNullOrEmpty(HeaderAuthorizationValue))
                 {
                     wc.Headers[HttpRequestHeader.Authorization] = HeaderAuthorizationValue;
                 }
-                
+
                 wc.Headers[HttpRequestHeader.ContentType] = contentType;
                 wc.Headers.Add("WebhookHub_ClientCode", ClientCode);
                 wc.Headers.Add("WebhookHub_EventCode", EventCode);
@@ -189,10 +202,7 @@ namespace WebHookHub.Services
 
                 if (!string.IsNullOrEmpty(expectedResult) && HtmlResult != expectedResult)
                 {
-                    if (!HtmlResult.Contains(expectedResult))
-                    {
-                        throw new Exception("[Unexpected content result]");
-                    }
+                    throw new Exception("[Unexpected content result]");
                 }
                 return HtmlResult;
             }
@@ -211,14 +221,35 @@ namespace WebHookHub.Services
         /// <param name="IDExtra"></param>
         /// <param name="HeaderAuthorizationValue"></param>
         /// <param name="expectedResult"></param>
+        /// <param name="dealyJob"></param>
+        /// <param name="parentJobId"></param>
         /// <returns></returns>
         [DisplayName("EnqueueRequest: [{1}:{0}][{6} | {8}]")]
         [Tag("EnqueueRequest", "{0}", "{1}")]
-        public string EnqueueRequest(string ClientCode, string EventCode, string urlToPost, string dataToPost, string contentType, int TimeOutInMsSecs, string ID, string IDExtra, string HeaderAuthorizationValue, string expectedResult = "")
+        public string EnqueueRequest(string ClientCode, string EventCode, string urlToPost, string dataToPost, string contentType, int TimeOutInMsSecs, string ID, string IDExtra, string HeaderAuthorizationValue, string expectedResult = "", int dealyJob = 0, string parentJobId = "")
         {
             EnqueuedState queue = new EnqueuedState(ClientCode.ToLower());
-            var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(ClientCode, EventCode, urlToPost, dataToPost, contentType, TimeOutInMsSecs, ID, IDExtra, HeaderAuthorizationValue, expectedResult), queue);
-            return jobId;
+            if (!string.IsNullOrEmpty(parentJobId))
+            {
+                var customJob = _context.CustomJobIDs.FirstOrDefault(x => x.ExternalJobID == parentJobId);
+                if (customJob != null)
+                {
+                    var jobId = new BackgroundJobClient().ContinueJobWith<NotificationService>(customJob.InternalJobID, x => x.SendData(ClientCode, EventCode, urlToPost, dataToPost, contentType, TimeOutInMsSecs, ID, IDExtra, HeaderAuthorizationValue, expectedResult, dealyJob, parentJobId), queue);
+                    return jobId;
+                }
+                else
+                {
+                    var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(ClientCode, EventCode, urlToPost, dataToPost, contentType, TimeOutInMsSecs, ID, IDExtra, HeaderAuthorizationValue, expectedResult, dealyJob, parentJobId), queue);
+                    return jobId;
+                }
+
+            }
+            else
+            {
+                var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(ClientCode, EventCode, urlToPost, dataToPost, contentType, TimeOutInMsSecs, ID, IDExtra, HeaderAuthorizationValue, expectedResult, dealyJob, parentJobId), queue);
+                return jobId;
+            }
+
         }
     }
 }

@@ -38,7 +38,7 @@ namespace WebHookHub
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            
+
         }
         /// <summary>
         /// Configuration
@@ -88,6 +88,7 @@ namespace WebHookHub
                     .UseTagsWithSql()
                     .UseMaxArgumentSizeToRender(Configuration.GetValue<int>("HangFireConfig:MaxArgumentToRenderSize"))
                     );
+            
             //Retry Intervals
             var TimeIntervals = Configuration.GetSection("HangFireConfig:HangFireRetryIntervalInSeconds").Get<int[]>();
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = TimeIntervals.Length, DelaysInSeconds = TimeIntervals, OnAttemptsExceeded = AttemptsExceededAction.Fail });
@@ -185,11 +186,16 @@ namespace WebHookHub
             };
             NavigationMenu.Items.Add(page => new MenuItem("API Documentation", "/index.html"));
             app.UseHangfireDashboard(Configuration.GetValue<string>("HangFireConfig:DashboardPath"), dashboardOptions);
-
+            int settingWorkers = Configuration.GetSection("HangFireConfig:WorkerCount").Get<int>();
+            
             var options = new BackgroundJobServerOptions
             {
-                Queues = GetQueuesHangFire(app).ToArray()
+                Queues = GetQueuesHangFire(app, Configuration).ToArray()
             };
+            if (settingWorkers != 0)
+            {
+                options.WorkerCount = settingWorkers;
+            }
             app.UseHangfireServer(options, additionalProcesses: new[] { new ProcessMonitor(checkInterval: TimeSpan.FromSeconds(1)) });
             app.UseEndpoints(endpoints =>
             {
@@ -214,15 +220,28 @@ namespace WebHookHub
         /// GetQueuesHangFire
         /// </summary>
         /// <param name="app"></param>
+        /// <param name="config"></param>
         /// <returns></returns>
-        private static List<string> GetQueuesHangFire(IApplicationBuilder app)
+        private static List<string> GetQueuesHangFire(IApplicationBuilder app, IConfiguration config)
         {
             using var serviceScope = app.ApplicationServices
             .GetRequiredService<IServiceScopeFactory>()
             .CreateScope();
 
             using var context = serviceScope.ServiceProvider.GetService<Models.DB.WebHookHubContext>();
-            var res = context.Clients.Select(x => x.Code).ToList();
+            var res = new List<string>();
+            var ForceQueues = config.GetSection("HangFireConfig:ForceQueues").Get<string[]>();
+            var IgnoredQueues = config.GetSection("HangFireConfig:IgnoredQueues").Get<string[]>();
+            if(ForceQueues != null && ForceQueues.Length > 0)
+            {
+                res.AddRange(context.Clients.Select(x => x.Code).ToList().Where(x=> ForceQueues.Contains(x)));
+            } else if(IgnoredQueues != null && IgnoredQueues.Length > 0)
+            {
+                res.AddRange(context.Clients.Select(x => x.Code).ToList().Where(x => !IgnoredQueues.Contains(x)));
+            } else
+            {
+                res.AddRange(context.Clients.Select(x => x.Code).ToList());
+            }
             res.Add("default");
             return res;
         }

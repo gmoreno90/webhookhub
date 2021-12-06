@@ -40,7 +40,12 @@ namespace WebHookHub.Models.DB
         /// DataToPost
         /// </summary>
         public DbSet<DataToPost> DataToPosts { get; set; }
-
+        /// <summary>
+        /// CustomJobID
+        /// </summary>
+        public DbSet<CustomJobID> CustomJobIDs { get; set; }
         
+
+
     }
 }
