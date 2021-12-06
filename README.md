@@ -16,6 +16,10 @@ The proposal for this project is that want to have a Web Hook Hub to manage all 
 - Background Jobs
 - Multi-Server Manage Jobs
 - Webhook Request Instant process or delayed
+- Configured Workers Count per Instance
+- CustomJobId for generate Event Dependencies
+- JobDelay in ms for non-scalable endpoints
+- Configure restrictions / force events for specific instances
 
 ### Flow Diagram
 
@@ -40,13 +44,17 @@ Inject appsettings.json file
     "DashboardUserName": "XXXXXX",
     "DashboardPassword": "YYYYYY",
     "DashboardPath": "/HangFireDashboard",
-	"MaxArgumentToRenderSize":  25000
+	"MaxArgumentToRenderSize":  25000,
+	"WorkerCount": 10,
+    "JobDelay": 0,
+    "IgnoredQueues": [ ],
+    "ForceQueues": [ ]
   },
   "ConnectionStrings": {
     "DefaultConnection": "server=XXXXXXXX;database=YYYYYYYYYY;uid=WWWWWWWWW;password=ZZZZZZZZ;"
   },
   "DefaultTimeOutInMiliSeconds": 20000,
-  "VersionNumber": "v1.0.1" 
+  "VersionNumber": "v1.0.3" 
 }
 ```
 

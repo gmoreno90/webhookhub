@@ -29,16 +29,17 @@ namespace WebHookHub.Controllers
             _logger = logger;
             _service = service;
         }
-
         /// <summary>
         /// Post Data
         /// </summary>
         /// <param name="EventCode">Event Code String</param>
         /// <param name="ClientCode">Cliente Code String</param>
+        /// <param name="customJobID">Custom Job ID (Optional)</param>
+        /// <param name="parentJobID">Parent Job ID (Optional)</param>
         /// <returns></returns>
         [HttpPost]
         [Route("PostData/{EventCode}/{ClientCode}")]
-        public async Task<string> PostData(string EventCode, string ClientCode)
+        public async Task<string> PostData(string EventCode, string ClientCode, string customJobID = "", string parentJobID = "")
         {
             try
             {
@@ -55,7 +56,9 @@ namespace WebHookHub.Controllers
                     PostData = strRQ,
                     ContentType = Request.ContentType,
                     DelayMode = Models.DelayMode.Instant,
-                    DelayValue = 0D
+                    DelayValue = 0D, 
+                    ParentJobID =parentJobID,
+                    CustomJobID = customJobID
                 });
             }
             catch (Exception ex)
@@ -72,10 +75,12 @@ namespace WebHookHub.Controllers
         /// <param name="ClientCode"></param>
         /// <param name="DelayMode"></param>
         /// <param name="DelayValue"></param>
+        /// <param name="customJobID">Custom Job ID</param>
+        /// <param name="parentJobID">Parent Job ID</param>
         /// <returns></returns>
         [HttpPost]
         [Route("PostDataDelayed/{EventCode}/{ClientCode}/{DelayMode}/{DelayValue}")]
-        public async Task<string> PostDataDelayed(string EventCode, string ClientCode, Models.DelayMode DelayMode, decimal DelayValue)
+        public async Task<string> PostDataDelayed(string EventCode, string ClientCode, Models.DelayMode DelayMode, decimal DelayValue, string customJobID = "", string parentJobID = "")
         {
             try
             {
@@ -92,7 +97,9 @@ namespace WebHookHub.Controllers
                     PostData = strRQ,
                     ContentType = Request.ContentType,
                     DelayMode = DelayMode,
-                    DelayValue = (double?)DelayValue
+                    DelayValue = (double?)DelayValue,
+                    ParentJobID = parentJobID,
+                    CustomJobID = customJobID
                 });
             }
             catch (Exception ex)

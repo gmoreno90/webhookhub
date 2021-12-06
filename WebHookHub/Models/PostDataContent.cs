@@ -30,6 +30,14 @@
         /// </summary>
         public double? DelayValue { get; set; }
         /// <summary>
+        /// ParentJobID
+        /// </summary>
+        public string ParentJobID { get; set; }
+        /// <summary>
+        /// CustomJobID
+        /// </summary>
+        public string CustomJobID { get; set; }
+        /// <summary>
         /// ToString
         /// </summary>
         /// <returns></returns>
@@ -42,6 +50,8 @@
             strReturn += "Content Type: " + ContentType + "\n";
             strReturn += "Delay Mode: " + DelayMode.ToString() + "\n";
             strReturn += "Delay Value: " + (DelayValue.HasValue ? DelayValue.Value : "") + "\n";
+            strReturn += "Parent Job ID: " + ParentJobID + "\n";
+            strReturn += "Custom Job ID: " + CustomJobID + "\n";
             return strReturn;
         }
     }
