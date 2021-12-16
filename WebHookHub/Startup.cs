@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using StatsdClient;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -201,6 +202,18 @@ namespace WebHookHub
             {
                 endpoints.MapControllers();
             });
+            var dogStatsdServer = Configuration.GetValue<string>("Diagnostics:DogStatsDServer");
+            ConfigureDataDog(dogStatsdServer);
+        }
+
+        private static void ConfigureDataDog(string servername)
+        {
+            var dogstatsdConfig = new StatsdConfig
+            {
+                StatsdServerName = servername,
+                StatsdPort = 8125
+            };
+            DogStatsd.Configure(dogstatsdConfig);
         }
         /// <summary>
         /// UpdateDatabase
