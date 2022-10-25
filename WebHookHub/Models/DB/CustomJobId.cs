@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace WebHookHub.Models.DB
@@ -26,5 +27,10 @@ namespace WebHookHub.Models.DB
         [Required]
         [MaxLength(100)]
         public string InternalJobID { get; set; }
+        /// <summary>
+        /// CreationDateTime
+        /// </summary>
+        [Required]
+        public DateTime CreationDateTime { get; set; }
     }
 }

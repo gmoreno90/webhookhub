@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace WebHookHub.Models.DB
     /// <summary>
     /// Data To Post
     /// </summary>
+    [Index(nameof(ContentID), nameof(ContentExtraID), nameof(EventCode), nameof(ClientCode))]
     public class DataToPost
     {
         /// <summary>
@@ -19,7 +21,6 @@ namespace WebHookHub.Models.DB
         /// <summary>
         /// Content
         /// </summary>
-        [Required]
         [MaxLength(500000)]
         public string Content { get; set; }
         /// <summary>
@@ -27,6 +28,27 @@ namespace WebHookHub.Models.DB
         /// </summary>
         [Required]
         public DateTime RequestDate { get; set; }
+        /// <summary>
+        /// ContentBinary
+        /// </summary>
+        [Required]
+        public byte[] ContentBinary { get; set; }
+        /// <summary>
+        /// ContentID
+        /// </summary>
+        public string ContentID { get; set; }
+        /// <summary>
+        /// ContentExtraID
+        /// </summary>
+        public string ContentExtraID { get; set; }
+        /// <summary>
+        /// EventCode
+        /// </summary>
+        public string EventCode { get; set; }
+        /// <summary>
+        /// ClientCode
+        /// </summary>
+        public string ClientCode { get; set; }
 
     }
 }

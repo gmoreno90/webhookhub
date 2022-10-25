@@ -1,0 +1,46 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title> Evolution tree example </title>
+    <link rel="stylesheet" href="/js/treant-js/Treant.css">
+    <link rel="stylesheet" href="/js/treant-js/examples/evolution-tree/example6.css">
+
+
+</head>
+<body>
+    <div class="chart" id="OrganiseChart6"></div>
+    <script src="/js/treant-js/vendor/raphael.js"></script>
+    <script src="/js/treant-js/Treant.js"></script>
+
+    <script src="/js/treant-js/vendor/jquery.min.js"></script>
+
+
+    <script>
+        $.get("/Summary/GetSummary", function (data) {
+            var tree_structure = {
+                chart: {
+                    container: "#OrganiseChart6",
+                    levelSeparation: 25,
+                    rootOrientation:"NORTH",
+                    siblingSeparation: 20,
+                    subTeeSeparation: 60,
+                    nodeAlign: "BOTTOM",
+                    scrollbar: "fancy",
+                    padding: 35,
+                    node: { HTMLclass: "evolution-tree" },
+                    connectors: {
+                        type: "step",
+                    }
+                },
+                nodeStructure: data
+            };
+            new Treant(tree_structure);
+        });
+        
+    </script>
+</body>
+</html>

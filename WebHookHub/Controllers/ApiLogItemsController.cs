@@ -30,10 +30,12 @@ namespace WebHookHub.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Get Logs from Dates
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Produces("application/json")]
+        [Consumes("application/json")]
         public async Task<ActionResult<IEnumerable<ApiLogItem>>> GetLogs(DateTime fromDate, DateTime toData)
         {
             return await _context.ApiLogItems.Where(x => x.RequestTime >= fromDate && x.RequestTime <= toData).OrderBy(x => x.RequestTime).ToListAsync();
@@ -46,6 +48,8 @@ namespace WebHookHub.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("GetDataToPost")]
+        [Produces("application/json")]
+        [Consumes("application/json")]
         public async Task<List<DataToPost>> GetDataToPost(Models.DataToPostRQ rq)
         {
             try
@@ -58,7 +62,31 @@ namespace WebHookHub.Controllers
                 {
                     query = query.Where(x => x.Content.Contains(rq.ContentValue));
                 }
-                return await query.ToListAsync();
+                if (!string.IsNullOrEmpty(rq.ContentID))
+                {
+                    query = query.Where(x => x.ContentID == rq.ContentID);
+                }
+                if (!string.IsNullOrEmpty(rq.ContentExtraID))
+                {
+                    query = query.Where(x => x.ContentExtraID == rq.ContentExtraID);
+                }
+                if (!string.IsNullOrEmpty(rq.EventCode))
+                {
+                    query = query.Where(x => x.EventCode == rq.EventCode);
+                }
+                if (!string.IsNullOrEmpty(rq.ClientCode))
+                {
+                    query = query.Where(x => x.ClientCode == rq.ClientCode);
+                }
+                var res = await query.OrderByDescending(x=>x.RequestDate).ToListAsync();
+                if(res  != null)
+                {
+                    foreach (var item in res)
+                    {
+                        item.Content = Models.Utils.GeneralUtils.FromByteArray<string>(item.ContentBinary);
+                    }
+                }    
+                return res;
             }
             catch (Exception ex)
             {

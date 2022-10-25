@@ -16,7 +16,7 @@ namespace WebHookHub.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.7")
+                .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("WebHookHub.Models.DB.ApiLogItem", b =>
@@ -160,6 +160,9 @@ namespace WebHookHub.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime>("CreationDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ExternalJobID")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -183,15 +186,32 @@ namespace WebHookHub.Migrations
                     b.Property<string>("ID")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ClientCode")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasMaxLength(500000)
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ContentBinary")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ContentExtraID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ContentID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("EventCode")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("ContentID", "ContentExtraID", "EventCode", "ClientCode");
 
                     b.ToTable("DataToPosts");
                 });

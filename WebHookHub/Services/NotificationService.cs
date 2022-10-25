@@ -7,9 +7,11 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using WebHookHub.Filters;
 using WebHookHub.Models.Utils;
@@ -66,8 +68,16 @@ namespace WebHookHub.Services
                 int TimeOutInMsSecs = _config.GetValue<int>("DefaultTimeOutInMiliSeconds");
                 int JobDelay = _config.GetValue<int>("HangFireConfig:JobDelay");
                 var idData = Guid.NewGuid().ToString();
-                _context.DataToPosts.Add(new Models.DB.DataToPost() { ID = idData, Content = postDataContent.PostData, RequestDate = DateTime.Now });
-                await _context.SaveChangesAsync();
+                var DataToPostDB = new Models.DB.DataToPost()
+                {
+                    ID = idData,
+                    Content = postDataContent.PostData,
+                    RequestDate = DateTime.Now,
+                    EventCode = postDataContent.EventCode,
+                    ClientCode = postDataContent.ClientCode,
+                    ContentBinary = Models.Utils.GeneralUtils.ToByteArray<string>(postDataContent.PostData)
+                };
+
                 List<string> listJobIds = new List<string>();
                 var eventClient = _context.ClientEvents
                     .Include(x => x.ClientEventWebhooks)
@@ -82,12 +92,15 @@ namespace WebHookHub.Services
                         ID = SearchContentUtil.SearchContent(postDataContent.PostData, eventClient.Event.RegexID);
                     if (!string.IsNullOrEmpty(eventClient.Event.RegexIDExtra))
                         IDExtra = SearchContentUtil.SearchContent(postDataContent.PostData, eventClient.Event.RegexIDExtra);
-
+                    DataToPostDB.ContentID = ID;
+                    DataToPostDB.ContentExtraID = IDExtra;
+                    _context.DataToPosts.Add(DataToPostDB);
+                    await _context.SaveChangesAsync();
                     try
                     {
-                        if (eventClient.ClientEventWebhooks != null && eventClient.ClientEventWebhooks.Any())
+                        if (eventClient.ClientEventWebhooks != null && eventClient.ClientEventWebhooks.Any(x => x.Enable))
                         {
-                            foreach (var item in eventClient.ClientEventWebhooks)
+                            foreach (var item in eventClient.ClientEventWebhooks.Where(x => x.Enable).ToList())
                             {
 
                                 if (postDataContent.DelayMode == Models.DelayMode.Instant)
@@ -103,9 +116,9 @@ namespace WebHookHub.Services
 
                                 _logger.LogInformation(postDataContent.ToString());
                             }
-                            if (listJobIds.Count() > 0 && !string.IsNullOrEmpty(postDataContent.CustomJobID))
+                            if (listJobIds.Any() && !string.IsNullOrEmpty(postDataContent.CustomJobID))
                             {
-                                await _context.CustomJobIDs.AddAsync(new Models.DB.CustomJobID { ExternalJobID = postDataContent.CustomJobID, InternalJobID = listJobIds.FirstOrDefault() });
+                                await _context.CustomJobIDs.AddAsync(new Models.DB.CustomJobID { ExternalJobID = postDataContent.CustomJobID, InternalJobID = listJobIds.FirstOrDefault(), CreationDateTime = DateTime.Now });
                                 await _context.SaveChangesAsync();
                             }
 
@@ -127,6 +140,8 @@ namespace WebHookHub.Services
                 }
                 else
                 {
+                    _context.DataToPosts.Add(DataToPostDB);
+                    await _context.SaveChangesAsync();
                     _logger.LogError("Not Webhooks Configured");
                     return "[error][configuration not found]";
                 }
@@ -198,13 +213,13 @@ namespace WebHookHub.Services
                 wc.Headers.Add("WebhookHub_EventCode", EventCode);
                 wc.Headers.Add("WebhookHub_ID", ID);
                 wc.Headers.Add("WebhookHub_IDExtra", IDExtra);
-                string HtmlResult = wc.UploadString(new Uri(urlToPost), dataToPost);
+                string reponse = wc.UploadString(new Uri(urlToPost), dataToPost);
 
-                if (!string.IsNullOrEmpty(expectedResult) && HtmlResult != expectedResult)
+                if (!string.IsNullOrEmpty(expectedResult) && !reponse.Contains(expectedResult))
                 {
-                    throw new Exception("[Unexpected content result]");
+                    throw new Exception("[Unexpected content result]" + reponse);
                 }
-                return HtmlResult;
+                return reponse;
             }
         }
 
@@ -231,7 +246,7 @@ namespace WebHookHub.Services
             EnqueuedState queue = new EnqueuedState(ClientCode.ToLower());
             if (!string.IsNullOrEmpty(parentJobId))
             {
-                var customJob = _context.CustomJobIDs.FirstOrDefault(x => x.ExternalJobID == parentJobId);
+                var customJob = _context.CustomJobIDs.Where(x => x.ExternalJobID == parentJobId).OrderByDescending(x => x.CreationDateTime).FirstOrDefault();
                 if (customJob != null)
                 {
                     var jobId = new BackgroundJobClient().ContinueJobWith<NotificationService>(customJob.InternalJobID, x => x.SendData(ClientCode, EventCode, urlToPost, dataToPost, contentType, TimeOutInMsSecs, ID, IDExtra, HeaderAuthorizationValue, expectedResult, dealyJob, parentJobId), queue);
@@ -242,14 +257,13 @@ namespace WebHookHub.Services
                     var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(ClientCode, EventCode, urlToPost, dataToPost, contentType, TimeOutInMsSecs, ID, IDExtra, HeaderAuthorizationValue, expectedResult, dealyJob, parentJobId), queue);
                     return jobId;
                 }
-
             }
             else
             {
                 var jobId = new BackgroundJobClient().Create<NotificationService>(x => x.SendData(ClientCode, EventCode, urlToPost, dataToPost, contentType, TimeOutInMsSecs, ID, IDExtra, HeaderAuthorizationValue, expectedResult, dealyJob, parentJobId), queue);
                 return jobId;
             }
-
         }
+
     }
 }
